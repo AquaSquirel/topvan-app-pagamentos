@@ -2,10 +2,8 @@
 
 import type { Student, Institution } from '@/lib/types';
 import React, { useState, useMemo, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
 import Dashboard from '@/components/dashboard';
 import StudentList from '@/components/student-list';
-import InstitutionManager from '@/components/institution-manager';
 import { StudentForm } from '@/components/student-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -84,6 +82,9 @@ export default function Home() {
           showValues={showValues}
           onToggleShowValues={() => setShowValues(prev => !prev)}
           onResetAllPayments={handleResetAllPayments}
+          institutions={institutions} 
+          onAddInstitution={handleAddInstitution}
+          onDeleteInstitution={handleDeleteInstitution}
         />
 
         <Tabs defaultValue="manha" className="mt-8">
@@ -115,14 +116,6 @@ export default function Home() {
           </TabsContent>
         </Tabs>
         
-        <div className="mt-8 flex justify-center">
-            <InstitutionManager 
-                institutions={institutions} 
-                onAddInstitution={handleAddInstitution}
-                onDeleteInstitution={handleDeleteInstitution}
-            />
-        </div>
-
         <StudentForm
           isOpen={isStudentFormOpen}
           setIsOpen={setIsStudentFormOpen}

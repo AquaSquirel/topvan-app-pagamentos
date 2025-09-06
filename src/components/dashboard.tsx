@@ -1,26 +1,46 @@
 'use client';
 
-import type { Student } from '@/lib/types';
+import type { Institution, Student } from '@/lib/types';
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Users, Banknote, Hourglass, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import InstitutionManager from './institution-manager';
 
 interface DashboardProps {
   students: Student[];
   showValues: boolean;
   onToggleShowValues: () => void;
   onResetAllPayments: () => void;
+  institutions: Institution[];
+  onAddInstitution: (name: string) => void;
+  onDeleteInstitution: (id: string) => void;
 }
 
 const TopVanLogo = () => (
-  <h1 className="text-4xl font-bold text-primary tracking-wider">
-    TopVan
-  </h1>
+  <h1 className="text-4xl font-bold text-primary tracking-wider">TopVan</h1>
 );
 
-const Dashboard: React.FC<DashboardProps> = ({ students, showValues, onToggleShowValues, onResetAllPayments }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  students,
+  showValues,
+  onToggleShowValues,
+  onResetAllPayments,
+  institutions,
+  onAddInstitution,
+  onDeleteInstitution,
+}) => {
   const [currentDate, setCurrentDate] = useState('');
 
   React.useEffect(() => {
@@ -56,26 +76,6 @@ const Dashboard: React.FC<DashboardProps> = ({ students, showValues, onToggleSho
           <TopVanLogo />
           <span className="text-muted-foreground font-medium text-lg">{currentDate}</span>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm">
-              <AlertTriangle className="mr-2 h-4 w-4" />
-              Zerar Pagamentos
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta ação definirá o status de pagamento de TODOS os alunos como "Pendente". Isso é ideal para iniciar um novo ciclo de cobrança, mas não pode ser desfeito.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={onResetAllPayments}>Sim, zerar pagamentos</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
@@ -91,8 +91,8 @@ const Dashboard: React.FC<DashboardProps> = ({ students, showValues, onToggleSho
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Recebido</CardTitle>
             <div className="flex items-center gap-2">
-                {showValues ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-                <Banknote className="h-4 w-4 text-muted-foreground" />
+              {showValues ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+              <Banknote className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
@@ -104,9 +104,9 @@ const Dashboard: React.FC<DashboardProps> = ({ students, showValues, onToggleSho
         <Card className="cursor-pointer" onClick={onToggleShowValues}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Pendente</CardTitle>
-             <div className="flex items-center gap-2">
-                {showValues ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-                <Hourglass className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+              {showValues ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+              <Hourglass className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
@@ -116,6 +116,36 @@ const Dashboard: React.FC<DashboardProps> = ({ students, showValues, onToggleSho
           </CardContent>
         </Card>
       </div>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-start pt-4 border-t border-border">
+          <AlertDialog>
+              <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="flex-1 sm:flex-none">
+                      <AlertTriangle className="mr-2 h-4 w-4" />
+                      Zerar Pagamentos
+                  </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                  <AlertDialogHeader>
+                      <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                          Esta ação definirá o status de pagamento de TODOS os alunos como "Pendente". Isso é ideal para iniciar um novo ciclo de cobrança, mas não pode ser desfeito.
+                      </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={onResetAllPayments}>Sim, zerar pagamentos</AlertDialogAction>
+                  </AlertDialogFooter>
+              </AlertDialogContent>
+          </AlertDialog>
+
+          <InstitutionManager
+              institutions={institutions}
+              onAddInstitution={onAddInstitution}
+              onDeleteInstitution={onDeleteInstitution}
+          />
+      </div>
+
     </div>
   );
 };
