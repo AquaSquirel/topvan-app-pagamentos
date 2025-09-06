@@ -2,11 +2,10 @@
 
 import type { Student, Institution } from '@/lib/types';
 import React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Plus, Sun, Moon } from 'lucide-react';
 import StudentCard from '@/components/student-card';
-import { Card, CardContent, CardHeader } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface StudentListProps {
   shift: 'Manhã' | 'Noite';
@@ -32,40 +31,34 @@ const StudentList: React.FC<StudentListProps> = ({
     : <Moon className="h-6 w-6 text-primary" />;
 
   return (
-    <Card className="bg-card">
-      <CardHeader>
-        <Accordion type="single" collapsible defaultValue="item-1">
-          <AccordionItem value="item-1" className="border-b-0">
-            <AccordionTrigger className="hover:no-underline text-2xl font-semibold">
-              <div className="flex items-center gap-3">
-                {shiftIcon}
-                <h2>Turma da {shift}</h2>
-                <span className="text-lg font-normal text-muted-foreground">({students.length})</span>
-              </div>
-            </AccordionTrigger>
-             <AccordionContent>
-                <div className="space-y-3 mt-4">
-                  {students.length > 0 ? (
-                    students.map(student => (
-                      <StudentCard
-                        key={student.id}
-                        student={student}
-                        institutionName={institutions.find(i => i.id === student.institutionId)?.name || 'N/A'}
-                        onEdit={() => onEditStudent(student)}
-                        onDelete={() => onDeleteStudent(student.id)}
-                        onTogglePayment={() => onTogglePayment(student.id)}
-                      />
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-center py-4">Nenhum aluno cadastrado nesta turma.</p>
-                  )}
-                </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+    <Card className="bg-card border-none shadow-none">
+       <CardHeader className="flex-row items-center justify-between p-2 mb-4">
+        <div className="flex items-center gap-3">
+            {shiftIcon}
+            <CardTitle className="text-2xl font-semibold">
+                Turma da {shift}
+            </CardTitle>
+        </div>
+        <span className="text-lg font-normal text-muted-foreground">({students.length} alunos)</span>
       </CardHeader>
-      <CardContent>
-         <Button onClick={onOpenAddStudent} className="w-full">
+      <CardContent className="p-0">
+        <div className="space-y-3">
+          {students.length > 0 ? (
+            students.map(student => (
+              <StudentCard
+                key={student.id}
+                student={student}
+                institutionName={institutions.find(i => i.id === student.institutionId)?.name || 'N/A'}
+                onEdit={() => onEditStudent(student)}
+                onDelete={() => onDeleteStudent(student.id)}
+                onTogglePayment={() => onTogglePayment(student.id)}
+              />
+            ))
+          ) : (
+            <p className="text-muted-foreground text-center py-8">Nenhum aluno cadastrado nesta turma.</p>
+          )}
+        </div>
+         <Button onClick={onOpenAddStudent} className="w-full mt-6">
             <Plus className="mr-2 h-4 w-4" /> Adicionar Aluno
         </Button>
       </CardContent>

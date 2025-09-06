@@ -3,11 +3,11 @@
 import type { Student, Institution } from '@/lib/types';
 import React, { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import Dashboard from '@/components/dashboard';
 import StudentList from '@/components/student-list';
 import InstitutionManager from '@/components/institution-manager';
 import { StudentForm } from '@/components/student-form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const initialInstitutions: Institution[] = [
   { id: '1', name: 'Universidade Federal' },
@@ -78,7 +78,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-body">
-      <main className="container mx-auto p-4 md:p-8">
+      <main className="container mx-auto p-4 md:p-6 lg:p-8">
         <Dashboard 
           students={students}
           showValues={showValues}
@@ -86,26 +86,34 @@ export default function Home() {
           onResetAllPayments={handleResetAllPayments}
         />
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <StudentList 
-            shift="Manhã" 
-            students={morningStudents} 
-            institutions={institutions}
-            onOpenAddStudent={() => openStudentForm('Manhã')}
-            onEditStudent={(student) => openStudentForm('Manhã', student)}
-            onDeleteStudent={handleDeleteStudent}
-            onTogglePayment={handleTogglePayment}
-          />
-          <StudentList 
-            shift="Noite" 
-            students={nightStudents} 
-            institutions={institutions}
-            onOpenAddStudent={() => openStudentForm('Noite')}
-            onEditStudent={(student) => openStudentForm('Noite', student)}
-            onDeleteStudent={handleDeleteStudent}
-            onTogglePayment={handleTogglePayment}
-          />
-        </div>
+        <Tabs defaultValue="manha" className="mt-8">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="manha">Manhã</TabsTrigger>
+            <TabsTrigger value="noite">Noite</TabsTrigger>
+          </TabsList>
+          <TabsContent value="manha">
+            <StudentList 
+              shift="Manhã" 
+              students={morningStudents} 
+              institutions={institutions}
+              onOpenAddStudent={() => openStudentForm('Manhã')}
+              onEditStudent={(student) => openStudentForm('Manhã', student)}
+              onDeleteStudent={handleDeleteStudent}
+              onTogglePayment={handleTogglePayment}
+            />
+          </TabsContent>
+          <TabsContent value="noite">
+            <StudentList 
+              shift="Noite" 
+              students={nightStudents} 
+              institutions={institutions}
+              onOpenAddStudent={() => openStudentForm('Noite')}
+              onEditStudent={(student) => openStudentForm('Noite', student)}
+              onDeleteStudent={handleDeleteStudent}
+              onTogglePayment={handleTogglePayment}
+            />
+          </TabsContent>
+        </Tabs>
         
         <div className="mt-8 flex justify-center">
             <InstitutionManager 

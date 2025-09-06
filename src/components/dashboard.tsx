@@ -50,15 +50,15 @@ const Dashboard: React.FC<DashboardProps> = ({ students, showValues, onToggleSho
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="flex items-center gap-4">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
           <TopVanLogo />
           <span className="text-muted-foreground font-medium text-lg">{currentDate}</span>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive">
+            <Button variant="destructive" size="sm">
               <AlertTriangle className="mr-2 h-4 w-4" />
               Zerar Pagamentos
             </Button>
@@ -77,7 +77,7 @@ const Dashboard: React.FC<DashboardProps> = ({ students, showValues, onToggleSho
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
