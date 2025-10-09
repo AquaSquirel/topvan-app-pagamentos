@@ -43,10 +43,11 @@ const AddTripForm = ({ onAddTrip }: { onAddTrip: (trip: Omit<Trip, 'id'>) => voi
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSubmit = () => {
-        if (destino && valor && date) {
+        const parsedValor = parseFloat(valor.replace(',', '.'));
+        if (destino && !isNaN(parsedValor) && parsedValor > 0 && date) {
             onAddTrip({
                 destino,
-                valor: parseFloat(valor),
+                valor: parsedValor,
                 data: date.toISOString(),
             });
             setDestino('');
@@ -69,7 +70,7 @@ const AddTripForm = ({ onAddTrip }: { onAddTrip: (trip: Omit<Trip, 'id'>) => voi
                     <Input placeholder="Destino" value={destino} onChange={(e) => setDestino(e.target.value)} />
                     <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                        <Input type="number" placeholder="Valor" value={valor} onChange={(e) => setValor(e.target.value)} className="pl-9" />
+                        <Input type="text" inputMode="decimal" placeholder="Valor" value={valor} onChange={(e) => setValor(e.target.value)} className="pl-9" />
                     </div>
                      <Popover>
                         <PopoverTrigger asChild>

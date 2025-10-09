@@ -127,7 +127,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                   <FormControl>
                      <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                        <Input type="number" step="0.01" className="pl-9" placeholder="450.00" {...field} />
+                        <Input type="text" inputMode="decimal" className="pl-9" placeholder="450.00" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />

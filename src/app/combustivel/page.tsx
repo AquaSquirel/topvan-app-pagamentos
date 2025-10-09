@@ -39,10 +39,11 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSubmit = () => {
-        if (valor && date) {
+        const parsedValor = parseFloat(valor.replace(',', '.'));
+        if (!isNaN(parsedValor) && parsedValor > 0 && date) {
             onAddExpense({
-                valor: parseFloat(valor),
-                litros: litros ? parseFloat(litros) : undefined,
+                valor: parsedValor,
+                litros: litros ? parseFloat(litros.replace(',', '.')) : undefined,
                 data: date.toISOString(),
             });
             setValor('');
@@ -64,9 +65,9 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
                 <div className="space-y-4 py-4">
                      <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                        <Input type="number" placeholder="Valor Gasto" value={valor} onChange={(e) => setValor(e.target.value)} className="pl-9" />
+                        <Input type="text" inputMode="decimal" placeholder="Valor Gasto" value={valor} onChange={(e) => setValor(e.target.value)} className="pl-9" />
                     </div>
-                    <Input type="number" placeholder="Litros (Opcional)" value={litros} onChange={(e) => setLitros(e.target.value)} />
+                    <Input type="text" inputMode="decimal" placeholder="Litros (Opcional)" value={litros} onChange={(e) => setLitros(e.target.value)} />
                      <Popover>
                         <PopoverTrigger asChild>
                           <Button
