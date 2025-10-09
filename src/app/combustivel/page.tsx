@@ -45,13 +45,19 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
         const parsedValor = parseFloat(valorString);
 
         if (!isNaN(parsedValor) && parsedValor > 0 && date) {
-             const parsedLitros = litrosString ? parseFloat(litrosString) : undefined;
-            
-            onAddExpense({
+            const expenseData: Omit<FuelExpense, 'id'> = {
                 valor: parsedValor,
-                litros: !isNaN(parsedLitros!) ? parsedLitros : undefined,
                 data: date.toISOString(),
-            });
+            };
+
+            if (litrosString) {
+                const parsedLitros = parseFloat(litrosString);
+                if (!isNaN(parsedLitros)) {
+                    expenseData.litros = parsedLitros;
+                }
+            }
+            
+            onAddExpense(expenseData);
             setValor('');
             setLitros('');
             setDate(new Date());
