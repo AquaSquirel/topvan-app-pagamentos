@@ -4,18 +4,7 @@ import type { Institution, Student } from '@/lib/types';
 import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Users, Banknote, Hourglass, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { Users, Banknote, Hourglass, Eye, EyeOff } from 'lucide-react';
 import InstitutionManager from './institution-manager';
 import { formatCurrency } from '@/lib/utils';
 
@@ -70,7 +59,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           <span className="text-muted-foreground font-medium text-lg">{currentDate}</span>
         </div>
       </div>
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Alunos</CardTitle>
@@ -108,37 +97,15 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 justify-center sm:justify-start pt-4 border-t border-border">
-          <AlertDialog>
-              <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="flex-1 sm:flex-none">
-                      <AlertTriangle className="mr-2 h-4 w-4" />
-                      Zerar Pagamentos
-                  </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                  <AlertDialogHeader>
-                      <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                          Esta ação definirá o status de pagamento de TODOS os alunos como "Pendente". Isso é ideal para iniciar um novo ciclo de cobrança, mas não pode ser desfeito.
-                      </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={onResetAllPayments}>Sim, zerar pagamentos</AlertDialogAction>
-                  </AlertDialogFooter>
-              </AlertDialogContent>
-          </AlertDialog>
-
+        
+        <div className="sm:col-span-2 flex flex-col sm:flex-row gap-2 pt-4 border-t border-border">
           <InstitutionManager
               institutions={institutions}
               onAddInstitution={onAddInstitution}
               onDeleteInstitution={onDeleteInstitution}
           />
+        </div>
       </div>
-
     </div>
   );
 };

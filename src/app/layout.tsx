@@ -28,9 +28,11 @@ export default function RootLayout({
       )}>
         <div className="flex">
           <Sidebar />
-          <main className="flex-1 pl-16 md:pl-64">
-             {children}
-          </main>
+          <div className="flex-1 md:pl-64">
+             <main className="mt-16 md:mt-0">
+                {children}
+            </main>
+          </div>
         </div>
         <Toaster />
       </body>

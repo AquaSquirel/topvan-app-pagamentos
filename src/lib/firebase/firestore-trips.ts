@@ -7,7 +7,8 @@ import {
     deleteDoc, 
     doc,
     orderBy,
-    query
+    query,
+    writeBatch
 } from 'firebase/firestore';
 
 const TRIPS_COLLECTION = 'trips';
@@ -28,4 +29,14 @@ export const addTrip = async (trip: Omit<Trip, 'id'>): Promise<string> => {
 export const deleteTrip = async (tripId: string): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, tripId);
     await deleteDoc(tripDoc);
+};
+
+export const deleteAllTrips = async (): Promise<void> => {
+    const batch = writeBatch(db);
+    const tripsCollection = collection(db, TRIPS_COLLECTION);
+    const querySnapshot = await getDocs(tripsCollection);
+    querySnapshot.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+    await batch.commit();
 };

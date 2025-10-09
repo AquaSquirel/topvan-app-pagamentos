@@ -151,7 +151,7 @@ export default function CombustivelPage() {
 
 
     return (
-        <main className="container mx-auto p-4 md:p-6 lg:p-8 mt-16 md:mt-0">
+        <main className="container mx-auto p-4 md:p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
                  <h2 className="text-3xl font-bold tracking-tight">Controle de Combustível</h2>
                 <AddExpenseForm onAddExpense={handleAddExpense} />

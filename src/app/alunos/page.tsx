@@ -50,8 +50,8 @@ export default function AlunosPage() {
 
   const handleAddStudent = async (studentData: Omit<Student, 'id'>) => {
     try {
-      const id = await addStudent(studentData);
-      await fetchData(); // Refetch all data
+      await addStudent(studentData);
+      await fetchData(); 
       toast({ title: "Sucesso!", description: "Aluno adicionado." });
     } catch(e) {
       toast({ title: "Erro", description: "Não foi possível adicionar o aluno.", variant: "destructive" });
@@ -61,7 +61,7 @@ export default function AlunosPage() {
   const handleUpdateStudent = async (student: Student) => {
     try {
       await updateStudent(student);
-      await fetchData(); // Refetch all data
+      await fetchData(); 
       toast({ title: "Sucesso!", description: "Dados do aluno atualizados." });
     } catch(e) {
       toast({ title: "Erro", description: "Não foi possível atualizar o aluno.", variant: "destructive" });
@@ -71,7 +71,7 @@ export default function AlunosPage() {
   const handleDeleteStudent = async (studentId: string) => {
     try {
       await deleteStudent(studentId);
-      await fetchData(); // Refetch all data
+      await fetchData();
       toast({ title: "Sucesso!", description: "Aluno excluído." });
     } catch(e) {
       toast({ title: "Erro", description: "Não foi possível excluir o aluno.", variant: "destructive" });
@@ -85,7 +85,7 @@ export default function AlunosPage() {
     const newStatus = student.statusPagamento === 'Pago' ? 'Pendente' : 'Pago';
     try {
         await updateStudent({ ...student, statusPagamento: newStatus });
-        await fetchData(); // Refetch all data
+        await fetchData();
     } catch (e) {
         toast({ title: "Erro", description: "Não foi possível alterar o status de pagamento.", variant: "destructive" });
     }
@@ -94,7 +94,7 @@ export default function AlunosPage() {
   const handleResetAllPayments = async () => {
     try {
       await resetAllPayments();
-      await fetchData(); // Refetch all data
+      await fetchData(); 
       toast({ title: "Sucesso!", description: "Todos os pagamentos foram zerados." });
     } catch (e) {
       toast({ title: "Erro", description: "Não foi possível zerar os pagamentos.", variant: "destructive" });
@@ -105,7 +105,7 @@ export default function AlunosPage() {
     if (name && !institutions.some(i => i.name.toLowerCase() === name.toLowerCase())) {
       try {
         await addInstitution(name);
-        await fetchData(); // Refetch all data
+        await fetchData(); 
         toast({ title: "Sucesso!", description: "Instituição adicionada." });
       } catch (e) {
         toast({ title: "Erro", description: "Não foi possível adicionar a instituição.", variant: "destructive" });
@@ -116,7 +116,7 @@ export default function AlunosPage() {
   const handleDeleteInstitution = async (id: string) => {
     try {
       await deleteInstitution(id);
-      await fetchData(); // Refetch all data
+      await fetchData(); 
       toast({ title: "Sucesso!", description: "Instituição excluída." });
     } catch(e) {
       toast({ title: "Erro", description: "Não foi possível excluir a instituição.", variant: "destructive" });
@@ -138,65 +138,63 @@ export default function AlunosPage() {
     .sort((a, b) => a.name.localeCompare(b.name)), [students]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <main className="container mx-auto p-4 md:p-6 lg:p-8 mt-16 md:mt-0">
-        <Dashboard 
-          students={students}
-          showValues={showValues}
-          onToggleShowValues={() => setShowValues(prev => !prev)}
-          onResetAllPayments={handleResetAllPayments}
-          institutions={institutions} 
-          onAddInstitution={handleAddInstitution}
-          onDeleteInstitution={handleDeleteInstitution}
-        />
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-6 lg:p-8">
+      <Dashboard 
+        students={students}
+        showValues={showValues}
+        onToggleShowValues={() => setShowValues(prev => !prev)}
+        onResetAllPayments={handleResetAllPayments}
+        institutions={institutions} 
+        onAddInstitution={handleAddInstitution}
+        onDeleteInstitution={handleDeleteInstitution}
+      />
 
-        {loading ? (
-          <div className="mt-8 space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-40 w-full" />
-          </div>
-        ) : (
-          <Tabs defaultValue="manha" className="mt-8">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="manha">Manhã</TabsTrigger>
-              <TabsTrigger value="noite">Noite</TabsTrigger>
-            </TabsList>
-            <TabsContent value="manha">
-              <StudentList 
-                shift="Manhã" 
-                students={morningStudents} 
-                institutions={institutions}
-                onOpenAddStudent={() => openStudentForm('Manhã')}
-                onEditStudent={(student) => openStudentForm('Manhã', student)}
-                onDeleteStudent={handleDeleteStudent}
-                onTogglePayment={handleTogglePayment}
-              />
-            </TabsContent>
-            <TabsContent value="noite">
-              <StudentList 
-                shift="Noite" 
-                students={nightStudents} 
-                institutions={institutions}
-                onOpenAddStudent={() => openStudentForm('Noite')}
-                onEditStudent={(student) => openStudentForm('Noite', student)}
-                onDeleteStudent={handleDeleteStudent}
-                onTogglePayment={handleTogglePayment}
-              />
-            </TabsContent>
-          </Tabs>
-        )}
-        
-        <StudentForm
-          isOpen={isStudentFormOpen}
-          setIsOpen={setIsStudentFormOpen}
-          student={editingStudent}
-          institutions={institutions}
-          onAddStudent={handleAddStudent}
-          onUpdateStudent={handleUpdateStudent}
-          defaultShift={defaultShift}
-        />
-      </main>
+      {loading ? (
+        <div className="mt-8 space-y-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+      ) : (
+        <Tabs defaultValue="manha" className="mt-8">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="manha">Manhã</TabsTrigger>
+            <TabsTrigger value="noite">Noite</TabsTrigger>
+          </TabsList>
+          <TabsContent value="manha">
+            <StudentList 
+              shift="Manhã" 
+              students={morningStudents} 
+              institutions={institutions}
+              onOpenAddStudent={() => openStudentForm('Manhã')}
+              onEditStudent={(student) => openStudentForm('Manhã', student)}
+              onDeleteStudent={handleDeleteStudent}
+              onTogglePayment={handleTogglePayment}
+            />
+          </TabsContent>
+          <TabsContent value="noite">
+            <StudentList 
+              shift="Noite" 
+              students={nightStudents} 
+              institutions={institutions}
+              onOpenAddStudent={() => openStudentForm('Noite')}
+              onEditStudent={(student) => openStudentForm('Noite', student)}
+              onDeleteStudent={handleDeleteStudent}
+              onTogglePayment={handleTogglePayment}
+            />
+          </TabsContent>
+        </Tabs>
+      )}
+      
+      <StudentForm
+        isOpen={isStudentFormOpen}
+        setIsOpen={setIsStudentFormOpen}
+        student={editingStudent}
+        institutions={institutions}
+        onAddStudent={handleAddStudent}
+        onUpdateStudent={handleUpdateStudent}
+        defaultShift={defaultShift}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Edit, Trash2, Info, Check, X, ChevronDown } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { formatCurrency } from '@/lib/utils';
 
 interface StudentCardProps {
   student: Student;
@@ -19,10 +20,6 @@ interface StudentCardProps {
 const StudentCard: React.FC<StudentCardProps> = ({ student, institutionName, onEdit, onDelete, onTogglePayment }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  };
-
   const isPaid = student.statusPagamento === 'Pago';
 
   return (
@@ -56,27 +53,27 @@ const StudentCard: React.FC<StudentCardProps> = ({ student, institutionName, onE
                     </div>
                 </div>
             )}
-            <div className="flex items-center gap-2 pt-3 border-t border-border">
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-3 border-t border-border">
                 <Button 
                     onClick={onTogglePayment} 
                     variant={isPaid ? 'destructive' : 'default'} 
                     className={cn(
-                        "flex-1 justify-center text-left px-4 py-2 font-bold h-auto text-sm",
+                        "flex-1 w-full justify-center text-left px-4 py-2 font-bold h-auto text-sm",
                         isPaid ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
                     )}
                 >
                     {isPaid ? <X className="mr-2 h-4 w-4" /> : <Check className="mr-2 h-4 w-4" />}
                     <span>{isPaid ? 'Marcar Pendente' : 'Marcar Pago'}</span>
                 </Button>
-                <div className="flex gap-1">
-                    <Button onClick={onEdit} variant="ghost" size="icon">
+                <div className="flex gap-1 w-full sm:w-auto">
+                    <Button onClick={onEdit} variant="outline" size="icon" className="flex-1 sm:flex-auto">
                         <Edit className="h-5 w-5" />
                         <span className="sr-only">Editar</span>
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <Trash2 className="h-5 w-5" />
+                        <Button variant="outline" size="icon" className="flex-1 sm:flex-auto">
+                            <Trash2 className="h-5 w-5 text-destructive" />
                             <span className="sr-only">Excluir</span>
                         </Button>
                         </AlertDialogTrigger>

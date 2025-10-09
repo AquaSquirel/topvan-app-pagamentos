@@ -21,7 +21,7 @@ const TripCard = ({ trip, onDelete }: { trip: Trip; onDelete: (id: string) => vo
     const isCompleted = new Date(trip.data) <= new Date();
     return (
         <div className="bg-card rounded-lg border overflow-hidden flex items-stretch">
-            <div className={cn("w-2 flex-shrink-0", isCompleted ? "bg-green-600" : "bg-red-600")}></div>
+            <div className={cn("w-2 flex-shrink-0", isCompleted ? "bg-green-600" : "bg-sky-600")}></div>
             <div className="flex-1 p-4 flex justify-between items-center">
                 <div>
                     <p className="font-semibold text-lg">{trip.destino}</p>
@@ -144,15 +144,17 @@ export default function ViagensPage() {
     };
 
     const { upcomingTrips, completedTrips, totalRevenue } = useMemo(() => {
-        const sortedTrips = [...trips].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
-        const upcoming = sortedTrips.filter(t => new Date(t.data) > new Date());
-        const completed = sortedTrips.filter(t => new Date(t.data) <= new Date());
+        const now = new Date();
+        now.setHours(0, 0, 0, 0); // Compare dates only
+        const sortedTrips = [...trips].sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+        const upcoming = sortedTrips.filter(t => new Date(t.data) >= now);
+        const completed = sortedTrips.filter(t => new Date(t.data) < now);
         const revenue = completed.reduce((acc, trip) => acc + trip.valor, 0);
-        return { upcomingTrips: upcoming, completedTrips: completed, totalRevenue: revenue };
+        return { upcomingTrips: upcoming, completedTrips: completed.reverse(), totalRevenue: revenue };
     }, [trips]);
 
     return (
-        <main className="container mx-auto p-4 md:p-6 lg:p-8 mt-16 md:mt-0">
+        <main className="container mx-auto p-4 md:p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
                  <h2 className="text-3xl font-bold tracking-tight">Controle de Viagens</h2>
                 <AddTripForm onAddTrip={handleAddTrip} />
@@ -161,7 +163,7 @@ export default function ViagensPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                  <Card>
                     <CardHeader>
-                        <CardTitle>Receita Total com Viagens</CardTitle>
+                        <CardTitle>Receita com Viagens</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {loading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold text-green-500">{formatCurrency(totalRevenue)}</p>}
@@ -182,7 +184,7 @@ export default function ViagensPage() {
                     <h3 className="text-2xl font-semibold mb-4">Próximas Viagens ({upcomingTrips.length})</h3>
                     <div className="space-y-4">
                         {loading && <> <Skeleton className="h-24 w-full" /> <Skeleton className="h-24 w-full" /> </>}
-                        {!loading && upcomingTrips.length === 0 && <p className="text-muted-foreground">Nenhuma viagem futura agendada.</p>}
+                        {!loading && upcomingTrips.length === 0 && <p className="text-muted-foreground text-center py-4">Nenhuma viagem futura agendada.</p>}
                         {upcomingTrips.map(trip => <TripCard key={trip.id} trip={trip} onDelete={handleDeleteTrip} />)}
                     </div>
                 </div>
@@ -190,7 +192,7 @@ export default function ViagensPage() {
                     <h3 className="text-2xl font-semibold mb-4">Viagens Realizadas ({completedTrips.length})</h3>
                     <div className="space-y-4">
                          {loading && <> <Skeleton className="h-24 w-full" /> <Skeleton className="h-24 w-full" /> </>}
-                        {!loading && completedTrips.length === 0 && <p className="text-muted-foreground">Nenhuma viagem realizada ainda.</p>}
+                        {!loading && completedTrips.length === 0 && <p className="text-muted-foreground text-center py-4">Nenhuma viagem realizada ainda.</p>}
                         {completedTrips.map(trip => <TripCard key={trip.id} trip={trip} onDelete={handleDeleteTrip} />)}
                     </div>
                 </div>
