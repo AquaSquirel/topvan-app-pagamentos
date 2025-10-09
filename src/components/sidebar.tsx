@@ -20,7 +20,7 @@ const TopVanLogo = () => (
     </Link>
 );
 
-const NavLink = ({ href, label, icon: Icon, onClick }: { href: string; label: string; icon: React.ElementType, onClick?: () => void }) => {
+const NavLink = ({ href, label, icon: Icon, onClick, isMobile }: { href: string; label: string; icon: React.ElementType, onClick?: () => void, isMobile?: boolean }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -28,13 +28,12 @@ const NavLink = ({ href, label, icon: Icon, onClick }: { href: string; label: st
     <Link href={href} passHref onClick={onClick}>
       <div
         className={cn(
-          'flex items-center p-3 my-1 rounded-lg cursor-pointer transition-colors',
-          'md:justify-start',
+          'flex items-center p-3 my-1 rounded-lg cursor-pointer transition-colors justify-start',
           isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
         )}
       >
-        <Icon className="h-6 w-6 md:mr-4" />
-        <span className="hidden md:block">{label}</span>
+        <Icon className="h-6 w-6 mr-4" />
+        <span className={cn(isMobile ? 'block' : 'hidden md:block')}>{label}</span>
       </div>
     </Link>
   );
@@ -54,8 +53,8 @@ const Sidebar = () => {
             {/* Mobile Header */}
             <header className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-2 h-16 bg-card border-b">
                 <TopVanLogo />
-                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                    {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                <Button variant="ghost" className="h-12 w-12" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                    {isMobileMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
                 </Button>
             </header>
 
@@ -76,7 +75,7 @@ const Sidebar = () => {
                     <TopVanLogo />
                 </div>
                  <nav>
-                    {navItems.map(item => <NavLink key={item.href} {...item} onClick={() => setIsMobileMenuOpen(false)} />)}
+                    {navItems.map(item => <NavLink key={item.href} {...item} onClick={() => setIsMobileMenuOpen(false)} isMobile />)}
                 </nav>
             </div>
 
