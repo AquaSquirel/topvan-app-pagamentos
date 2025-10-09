@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/', label: 'Início', icon: LayoutDashboard },
   { href: '/alunos', label: 'Alunos', icon: Users },
   { href: '/viagens', label: 'Viagens', icon: Milestone },
   { href: '/combustivel', label: 'Combustível', icon: Droplet },
