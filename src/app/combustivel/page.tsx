@@ -35,7 +35,7 @@ const ExpenseCard = ({ expense, onDelete }: { expense: FuelExpense; onDelete: (i
 const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExpense, 'id'>) => void }) => {
     const [valor, setValor] = useState('');
     const [litros, setLitros] = useState('');
-    const [date, setDate] = React.useState<Date>(new Date())
+    const [date, setDate] = React.useState<Date | undefined>(new Date());
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSubmit = () => {
@@ -84,7 +84,7 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
                           <Calendar
                             mode="single"
                             selected={date}
-                            onSelect={(d) => setDate(d || new Date())}
+                            onSelect={setDate}
                             initialFocus
                           />
                         </PopoverContent>
