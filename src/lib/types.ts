@@ -12,3 +12,17 @@ export interface Student {
   statusPagamento: 'Pago' | 'Pendente';
   turno: 'Manhã' | 'Noite';
 }
+
+export interface Trip {
+  id: string;
+  destino: string;
+  data: string; // ISO date string
+  valor: number;
+}
+
+export interface FuelExpense {
+  id: string;
+  data: string; // ISO date string
+  valor: number;
+  litros?: number;
+}

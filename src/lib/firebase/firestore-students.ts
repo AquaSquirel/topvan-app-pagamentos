@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase/config';
-import type { Student, Institution } from '@/lib/types';
+import type { Student } from '@/lib/types';
 import { 
     collection, 
     getDocs, 
@@ -12,7 +12,6 @@ import {
 } from 'firebase/firestore';
 
 const STUDENTS_COLLECTION = 'students';
-const INSTITUTIONS_COLLECTION = 'institutions';
 
 // Student functions
 export const getStudents = async (): Promise<Student[]> => {
@@ -49,23 +48,4 @@ export const resetAllPayments = async (): Promise<void> => {
     });
 
     await batch.commit();
-};
-
-
-// Institution functions
-export const getInstitutions = async (): Promise<Institution[]> => {
-    const institutionsCollection = collection(db, INSTITUTIONS_COLLECTION);
-    const institutionsSnapshot = await getDocs(institutionsCollection);
-    return institutionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Institution));
-};
-
-export const addInstitution = async (name: string): Promise<string> => {
-    const institutionsCollection = collection(db, INSTITUTIONS_COLLECTION);
-    const docRef = await addDoc(institutionsCollection, { name });
-    return docRef.id;
-};
-
-export const deleteInstitution = async (id: string): Promise<void> => {
-    const institutionDoc = doc(db, INSTITUTIONS_COLLECTION, id);
-    await deleteDoc(institutionDoc);
 };
