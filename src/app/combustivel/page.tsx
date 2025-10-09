@@ -39,11 +39,17 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSubmit = () => {
-        const parsedValor = parseFloat(valor.replace(',', '.'));
+        const valorString = valor.replace(',', '.');
+        const litrosString = litros.replace(',', '.');
+        
+        const parsedValor = parseFloat(valorString);
+
         if (!isNaN(parsedValor) && parsedValor > 0 && date) {
+             const parsedLitros = litrosString ? parseFloat(litrosString) : undefined;
+            
             onAddExpense({
                 valor: parsedValor,
-                litros: litros ? parseFloat(litros.replace(',', '.')) : undefined,
+                litros: !isNaN(parsedLitros!) ? parsedLitros : undefined,
                 data: date.toISOString(),
             });
             setValor('');
