@@ -15,7 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const studentSchema = z.object({
   name: z.string().min(3, { message: 'O nome deve ter pelo menos 3 caracteres.' }),
   institutionId: z.string({ required_error: 'Selecione uma instituição.' }),
-  valorMensalidade: z.coerce.number().min(0, { message: 'O valor não pode ser negativo.' }),
+  valorMensalidade: z.string().refine(val => !isNaN(parseFloat(val.replace(',', '.'))), {
+    message: "Valor inválido"
+  }).transform(val => parseFloat(val.replace(',', '.'))).refine(val => val >= 0, {
+    message: "O valor não pode ser negativo."
+  }),
   observacoes: z.string().optional(),
   turno: z.enum(['Manhã', 'Noite']),
   statusPagamento: z.enum(['Pago', 'Pendente']),
@@ -28,8 +32,8 @@ interface StudentFormProps {
   setIsOpen: (open: boolean) => void;
   student: Student | null;
   institutions: Institution[];
-  onAddStudent: (student: Omit<Student, 'id'>) => void;
-  onUpdateStudent: (student: Student) => void;
+  onAddStudent: (student: Omit<Student, 'id' | 'valorMensalidade'> & { valorMensalidade: number }) => void;
+  onUpdateStudent: (student: Omit<Student, 'valorMensalidade'> & { valorMensalidade: number }) => void;
   defaultShift: 'Manhã' | 'Noite';
 }
 
@@ -47,7 +51,6 @@ export const StudentForm: React.FC<StudentFormProps> = ({
     defaultValues: {
       name: '',
       institutionId: '',
-      valorMensalidade: defaultShift === 'Manhã' ? 450 : 400,
       observacoes: '',
       turno: defaultShift,
       statusPagamento: 'Pendente',
@@ -55,10 +58,11 @@ export const StudentForm: React.FC<StudentFormProps> = ({
   });
 
   useEffect(() => {
+     const defaultValor = (student?.valorMensalidade ?? (defaultShift === 'Manhã' ? 450 : 400)).toString();
     const defaultValues = {
       name: student?.name ?? '',
       institutionId: student?.institutionId ?? '',
-      valorMensalidade: student?.valorMensalidade ?? (defaultShift === 'Manhã' ? 450 : 400),
+      valorMensalidade: defaultValor,
       observacoes: student?.observacoes ?? '',
       turno: student?.turno ?? defaultShift,
       statusPagamento: student?.statusPagamento ?? 'Pendente',
