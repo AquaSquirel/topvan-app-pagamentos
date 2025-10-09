@@ -18,6 +18,7 @@ export interface Trip {
   destino: string;
   data: string; // ISO date string
   valor: number;
+  statusPagamento: 'Pago' | 'Pendente';
 }
 
 export interface FuelExpense {

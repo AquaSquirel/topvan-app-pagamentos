@@ -6,6 +6,7 @@ import {
     addDoc, 
     deleteDoc, 
     doc,
+    updateDoc,
     orderBy,
     query,
     writeBatch
@@ -24,6 +25,12 @@ export const addTrip = async (trip: Omit<Trip, 'id'>): Promise<string> => {
     const tripsCollection = collection(db, TRIPS_COLLECTION);
     const docRef = await addDoc(tripsCollection, trip);
     return docRef.id;
+};
+
+export const updateTrip = async (trip: Trip): Promise<void> => {
+    const tripDoc = doc(db, TRIPS_COLLECTION, trip.id);
+    const { id, ...tripData } = trip;
+    await updateDoc(tripDoc, tripData);
 };
 
 export const deleteTrip = async (tripId: string): Promise<void> => {

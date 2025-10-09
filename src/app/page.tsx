@@ -75,7 +75,7 @@ export default function Home() {
     const { receitaAlunos, receitaViagens, despesaCombustivel, receitaBruta, lucroLiquido } = useMemo(() => {
         const receitaAlunos = students.filter(s => s.statusPagamento === 'Pago').reduce((acc, s) => acc + s.valorMensalidade, 0);
         
-        const receitaViagens = trips.filter(t => new Date(t.data) <= new Date()).reduce((acc, t) => acc + t.valor, 0);
+        const receitaViagens = trips.filter(t => t.statusPagamento === 'Pago').reduce((acc, t) => acc + t.valor, 0);
 
         const despesaCombustivel = fuelExpenses.reduce((acc, f) => acc + f.valor, 0);
         
@@ -133,7 +133,7 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold tracking-tight">Detalhes do Mês</h2>
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                      <StatCard title="Alunos Pagos" value={formatCurrency(receitaAlunos)} icon={<Users className="h-4 w-4 text-muted-foreground" />} loading={loading} />
-                     <StatCard title="Viagens Realizadas" value={formatCurrency(receitaViagens)} icon={<Milestone className="h-4 w-4 text-muted-foreground" />} loading={loading} />
+                     <StatCard title="Viagens Pagas" value={formatCurrency(receitaViagens)} icon={<Milestone className="h-4 w-4 text-muted-foreground" />} loading={loading} />
                      <StatCard title="Total em Combustível" value={formatCurrency(despesaCombustivel)} icon={<Droplet className="h-4 w-4 text-muted-foreground" />} loading={loading} />
                      <StatCard title="Total de Alunos" value={students.length.toString()} icon={<Users className="h-4 w-4 text-muted-foreground" />} loading={loading} />
                 </div>
