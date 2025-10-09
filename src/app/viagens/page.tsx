@@ -39,7 +39,7 @@ const TripCard = ({ trip, onDelete }: { trip: Trip; onDelete: (id: string) => vo
 const AddTripForm = ({ onAddTrip }: { onAddTrip: (trip: Omit<Trip, 'id'>) => void }) => {
     const [destino, setDestino] = useState('');
     const [valor, setValor] = useState('');
-    const [date, setDate] = React.useState<Date>()
+    const [date, setDate] = React.useState<Date | undefined>(new Date());
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSubmit = () => {
@@ -51,7 +51,7 @@ const AddTripForm = ({ onAddTrip }: { onAddTrip: (trip: Omit<Trip, 'id'>) => voi
             });
             setDestino('');
             setValor('');
-            setDate(undefined);
+            setDate(new Date());
             setIsOpen(false);
         }
     };
