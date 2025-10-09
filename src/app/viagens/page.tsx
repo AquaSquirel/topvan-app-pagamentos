@@ -19,7 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 
 const TripCard = ({ trip, onDelete, onTogglePayment }: { trip: Trip; onDelete: (id: string) => void; onTogglePayment: () => void; }) => {
-    const isCompleted = new Date(trip.data).setHours(0,0,0,0) <= new Date().setHours(0,0,0,0);
+    const isCompleted = new Date(trip.data).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
     const isPaid = trip.statusPagamento === 'Pago';
 
     return (
@@ -32,7 +32,8 @@ const TripCard = ({ trip, onDelete, onTogglePayment }: { trip: Trip; onDelete: (
                 <div className="flex justify-between items-start">
                     <div>
                         <p className="font-semibold text-lg">{trip.destino}</p>
-                        <p className="text-sm text-muted-foreground">{formatDate(trip.data)}</p>
+                        {trip.contratante && <p className="text-sm text-muted-foreground">{trip.contratante}</p>}
+                        <p className="text-sm text-muted-foreground mt-1">{formatDate(trip.data)}</p>
                         <p className="font-semibold text-base block mt-2">{formatCurrency(trip.valor)}</p>
                     </div>
                      <AlertDialog>
@@ -73,6 +74,7 @@ const TripCard = ({ trip, onDelete, onTogglePayment }: { trip: Trip; onDelete: (
 
 const AddTripForm = ({ onAddTrip }: { onAddTrip: (trip: Omit<Trip, 'id' | 'statusPagamento'>) => void }) => {
     const [destino, setDestino] = useState('');
+    const [contratante, setContratante] = useState('');
     const [valor, setValor] = useState('');
     const [date, setDate] = React.useState<Date | undefined>(new Date());
     const [isOpen, setIsOpen] = useState(false);
@@ -84,10 +86,12 @@ const AddTripForm = ({ onAddTrip }: { onAddTrip: (trip: Omit<Trip, 'id' | 'statu
         if (destino && !isNaN(parsedValor) && parsedValor > 0 && date) {
             onAddTrip({
                 destino,
+                contratante,
                 valor: parsedValor,
                 data: date.toISOString(),
             });
             setDestino('');
+            setContratante('');
             setValor('');
             setDate(new Date());
             setIsOpen(false);
@@ -105,6 +109,7 @@ const AddTripForm = ({ onAddTrip }: { onAddTrip: (trip: Omit<Trip, 'id' | 'statu
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                     <Input placeholder="Destino" value={destino} onChange={(e) => setDestino(e.target.value)} />
+                    <Input placeholder="Nome do Contratante (Opcional)" value={contratante} onChange={(e) => setContratante(e.target.value)} />
                     <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
                         <Input 

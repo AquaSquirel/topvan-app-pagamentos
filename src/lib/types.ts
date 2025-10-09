@@ -16,6 +16,7 @@ export interface Student {
 export interface Trip {
   id: string;
   destino: string;
+  contratante?: string;
   data: string; // ISO date string
   valor: number;
   statusPagamento: 'Pago' | 'Pendente';
