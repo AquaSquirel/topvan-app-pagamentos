@@ -51,7 +51,15 @@ const expenseSchema = z.object({
   }),
   data: z.date({ required_error: 'A data é obrigatória.' }),
   paymentMethod: z.enum(["PIX", "Cartão Banco Brasil", "Cartão Nubank", "Cartão Naza", "Outro"]),
-  totalInstallments: z.coerce.number().optional(),
+  totalInstallments: z.string().optional().transform(val => val ? parseInt(val, 10) : undefined),
+}).refine(data => {
+    if (data.paymentMethod !== 'PIX') {
+        return data.totalInstallments && data.totalInstallments > 0;
+    }
+    return true;
+}, {
+    message: "O número de parcelas é obrigatório e deve ser maior que zero.",
+    path: ["totalInstallments"],
 });
 
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
@@ -63,7 +71,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
         resolver: zodResolver(expenseSchema),
         defaultValues: {
             description: '',
-            valor: '',
+            valor: undefined,
             data: new Date(),
             paymentMethod: 'PIX',
             totalInstallments: 1
@@ -92,7 +100,13 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
         }
 
         onAddExpense(expenseData);
-        form.reset();
+        form.reset({
+            description: '',
+            valor: undefined,
+            data: new Date(),
+            paymentMethod: 'PIX',
+            totalInstallments: 1
+        });
         setIsOpen(false);
     };
 
@@ -137,7 +151,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                         {isInstallment && (
                           <div className="grid grid-cols-1 gap-4">
                             <FormField control={form.control} name="totalInstallments" render={({ field }) => (
-                                <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} value={field.value || 1} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                             )} />
                           </div>
                         )}
@@ -155,7 +169,7 @@ const ExpenseCard = ({ expense, onDelete }: { expense: GeneralExpense; onDelete:
             <div className='flex items-center gap-2'>
               <p className="font-semibold text-lg">{expense.description}</p>
               {expense.totalInstallments && (
-                <span className="text-xs font-bold bg-primary/20 text-primary-foreground py-0.5 px-2 rounded-full">
+                <span className="text-xs font-bold bg-primary text-primary-foreground py-0.5 px-2 rounded-full">
                   {expense.currentInstallment}/{expense.totalInstallments}
                 </span>
               )}
@@ -295,5 +309,3 @@ export default function GastosPage() {
         </main>
     );
 }
-
-    
