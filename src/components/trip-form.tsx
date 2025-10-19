@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 const tripSchema = z.object({
@@ -47,6 +48,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
       destino: '',
       contratante: '',
       valor: '0',
+      data: new Date(),
     },
   });
 
@@ -143,7 +145,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
                                 )}
                             >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? format(field.value, "PPP") : <span>Selecione a data</span>}
+                                {field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
                             </Button>
                            </FormControl>
                         </PopoverTrigger>
@@ -153,6 +155,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
+                            locale={ptBR}
                           />
                         </PopoverContent>
                     </Popover>

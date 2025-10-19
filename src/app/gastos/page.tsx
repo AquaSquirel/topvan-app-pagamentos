@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
+import { ptBR } from 'date-fns/locale';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -112,10 +113,10 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                             <FormItem className="flex flex-col"><FormLabel>Data do Gasto</FormLabel><Popover>
                                 <PopoverTrigger asChild><FormControl>
                                     <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />{field.value ? format(field.value, "PPP") : <span>Selecione a data</span>}
+                                        <CalendarIcon className="mr-2 h-4 w-4" />{field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
                                     </Button></FormControl>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent>
+                                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus locale={ptBR} /></PopoverContent>
                             </Popover><FormMessage /></FormItem>
                         )} />
                         <FormField control={form.control} name="paymentMethod" render={({ field }) => (
