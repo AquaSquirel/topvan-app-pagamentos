@@ -50,7 +50,6 @@ const expenseSchema = z.object({
   }),
   data: z.date({ required_error: 'A data é obrigatória.' }),
   paymentMethod: z.enum(["PIX", "Cartão Banco Brasil", "Cartão Nubank", "Cartão Naza", "Outro"]),
-  currentInstallment: z.coerce.number().optional(),
   totalInstallments: z.coerce.number().optional(),
 });
 
@@ -66,7 +65,6 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
             valor: '0',
             data: new Date(),
             paymentMethod: 'PIX',
-            currentInstallment: 1,
             totalInstallments: 1
         },
     });
@@ -82,7 +80,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
         const expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
             ...data,
             data: data.data.toISOString(),
-            currentInstallment: isInstallment ? data.currentInstallment : undefined,
+            currentInstallment: isInstallment ? 1 : undefined,
             totalInstallments: isInstallment ? data.totalInstallments : undefined,
         };
         onAddExpense(expenseData);
@@ -129,10 +127,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                             </FormItem>
                         )} />
                         {isInstallment && (
-                          <div className="grid grid-cols-2 gap-4">
-                            <FormField control={form.control} name="currentInstallment" render={({ field }) => (
-                                <FormItem><FormLabel>Parcela Atual</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                            )} />
+                          <div className="grid grid-cols-1 gap-4">
                             <FormField control={form.control} name="totalInstallments" render={({ field }) => (
                                 <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
@@ -285,3 +280,5 @@ export default function GastosPage() {
         </main>
     );
 }
+
+    
