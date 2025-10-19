@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Milestone, Droplet, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, Milestone, Droplet, Menu, X, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/alunos', label: 'Alunos', icon: Users },
   { href: '/viagens', label: 'Viagens', icon: Milestone },
   { href: '/combustivel', label: 'Combustível', icon: Droplet },
+  { href: '/gastos', label: 'Gastos', icon: Wallet },
 ];
 
 const TopVanLogo = () => (
@@ -20,7 +21,7 @@ const TopVanLogo = () => (
     </Link>
 );
 
-const NavLink = ({ href, label, icon: Icon, onClick, isMobile }: { href: string; label: string; icon: React.ElementType, onClick?: () => void, isMobile?: boolean }) => {
+const NavLink = ({ href, label, icon: Icon, onClick }: { href: string; label: string; icon: React.ElementType, onClick?: () => void }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -33,7 +34,7 @@ const NavLink = ({ href, label, icon: Icon, onClick, isMobile }: { href: string;
         )}
       >
         <Icon className="h-6 w-6 mr-4" />
-        <span className={cn(isMobile ? 'block' : 'hidden md:block')}>{label}</span>
+        <span className='block'>{label}</span>
       </div>
     </Link>
   );
@@ -75,7 +76,7 @@ const Sidebar = () => {
                     <TopVanLogo />
                 </div>
                  <nav>
-                    {navItems.map(item => <NavLink key={item.href} {...item} onClick={() => setIsMobileMenuOpen(false)} isMobile />)}
+                    {navItems.map(item => <NavLink key={item.href} {...item} onClick={() => setIsMobileMenuOpen(false)} />)}
                 </nav>
             </div>
 

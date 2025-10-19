@@ -28,3 +28,15 @@ export interface FuelExpense {
   valor: number;
   litros?: number;
 }
+
+export type PaymentMethod = "PIX" | "Cartão Banco Brasil" | "Cartão Nubank" | "Cartão Naza" | "Outro";
+export type ExpenseCategory = "Alimentação" | "Manutenção do Veículo" | "Saúde" | "Lazer" | "Pessoal" | "Educação" | "Outros";
+
+export interface GeneralExpense {
+  id: string;
+  data: string; // ISO date string
+  valor: number;
+  description: string;
+  paymentMethod: PaymentMethod;
+  category: ExpenseCategory;
+}
