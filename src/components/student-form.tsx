@@ -51,6 +51,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
     defaultValues: {
       name: '',
       institutionId: '',
+      valorMensalidade: '',
       observacoes: '',
       turno: defaultShift,
       statusPagamento: 'Pendente',
@@ -58,7 +59,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
   });
 
   useEffect(() => {
-     const defaultValor = (student?.valorMensalidade ?? (defaultShift === 'Manhã' ? 450 : 400)).toString();
+     const defaultValor = (student?.valorMensalidade ? String(student.valorMensalidade) : '').toString();
     const defaultValues = {
       name: student?.name ?? '',
       institutionId: student?.institutionId ?? '',
@@ -131,7 +132,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
                   <FormControl>
                      <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                        <Input type="text" inputMode="decimal" className="pl-9" placeholder="450.00" {...field} />
+                        <Input type="text" inputMode="decimal" className="pl-9" placeholder="450,00" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />

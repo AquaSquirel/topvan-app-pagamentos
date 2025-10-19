@@ -44,7 +44,7 @@ const chartConfig: any = Object.fromEntries(
 
 const expenseSchema = z.object({
   description: z.string().min(3, { message: 'A descrição deve ter pelo menos 3 caracteres.' }),
-  valor: z.string().refine(val => !isNaN(parseFloat(val.replace(',', '.'))), {
+  valor: z.string().refine(val => val !== '' && !isNaN(parseFloat(val.replace(',', '.'))), {
     message: "Valor inválido"
   }).transform(val => parseFloat(val.replace(',', '.'))).refine(val => val > 0, {
     message: "O valor deve ser positivo."
@@ -63,7 +63,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
         resolver: zodResolver(expenseSchema),
         defaultValues: {
             description: '',
-            valor: 0,
+            valor: '',
             data: new Date(),
             paymentMethod: 'PIX',
             totalInstallments: 1
@@ -78,11 +78,12 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
     const isInstallment = paymentMethod !== 'PIX';
 
     const onSubmit = (data: ExpenseFormValues) => {
-        const expenseData: any = {
+        const expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
             description: data.description,
             valor: data.valor,
             data: data.data.toISOString(),
             paymentMethod: data.paymentMethod,
+            category: "Outros" // Placeholder, will be replaced by AI
         };
 
         if (isInstallment) {
@@ -112,7 +113,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                         <FormField control={form.control} name="valor" render={({ field }) => (
                             <FormItem><FormLabel>Valor</FormLabel><FormControl>
                                 <div className="relative"><span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} onChange={e => field.onChange(e.target.value)} value={field.value || ''} /></div>
+                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} /></div>
                             </FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={form.control} name="data" render={({ field }) => (
@@ -198,7 +199,14 @@ export default function GastosPage() {
         setIsCategorizing(true);
         try {
             const { category } = await categorizeExpense({ description: data.description });
-            const newExpense: Omit<GeneralExpense, 'id'> = { ...data, category };
+            let newExpense: Omit<GeneralExpense, 'id'> = { ...data, category };
+
+            // Ensure installment fields are handled correctly
+            if (!data.totalInstallments) {
+                const { currentInstallment, totalInstallments, ...releventData } = newExpense as any;
+                newExpense = releventData;
+            }
+            
             await addGeneralExpense(newExpense);
             await fetchExpenses();
             toast({ title: "Sucesso!", description: "Gasto adicionado e categorizado." });
