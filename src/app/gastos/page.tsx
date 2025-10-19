@@ -58,7 +58,7 @@ const expenseSchema = z.object({
     }
     return true;
 }, {
-    message: "O número de parcelas é obrigatório e deve ser maior que zero.",
+    message: "O número de parcelas é obrigatório e deve ser maior que zero para essa forma de pagamento.",
     path: ["totalInstallments"],
 });
 
@@ -86,7 +86,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
     const isInstallment = paymentMethod !== 'PIX';
 
     const onSubmit = (data: ExpenseFormValues) => {
-        const expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
+        let expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
             description: data.description,
             valor: data.valor,
             data: data.data.toISOString(),
@@ -94,7 +94,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
             category: "Outros" // Placeholder, will be replaced by AI
         };
 
-        if (isInstallment) {
+        if (isInstallment && data.totalInstallments) {
             expenseData.currentInstallment = 1;
             expenseData.totalInstallments = data.totalInstallments;
         }
@@ -125,21 +125,12 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                             <FormItem><FormLabel>Descrição</FormLabel><FormControl><Input placeholder="Ex: Almoço no restaurante" {...field} /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={form.control} name="valor" render={({ field }) => (
-                            <FormItem><FormLabel>Valor</FormLabel><FormControl>
+                             <FormItem><FormLabel>Valor</FormLabel><FormControl>
                                 <div className="relative"><span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} /></div>
+                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} onChange={e => field.onChange(e.target.value)} value={field.value || ''} /></div>
                             </FormControl><FormMessage /></FormItem>
                         )} />
-                        <FormField control={form.control} name="data" render={({ field }) => (
-                            <FormItem className="flex flex-col"><FormLabel>Data do Gasto</FormLabel><Popover>
-                                <PopoverTrigger asChild><FormControl>
-                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />{field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
-                                    </Button></FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus locale={ptBR} /></PopoverContent>
-                            </Popover><FormMessage /></FormItem>
-                        )} />
+                        
                         <FormField control={form.control} name="paymentMethod" render={({ field }) => (
                             <FormItem><FormLabel>Forma de Pagamento</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -151,10 +142,20 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                         {isInstallment && (
                           <div className="grid grid-cols-1 gap-4">
                             <FormField control={form.control} name="totalInstallments" render={({ field }) => (
-                                <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                                 <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.value)} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
                             )} />
                           </div>
                         )}
+                        <FormField control={form.control} name="data" render={({ field }) => (
+                            <FormItem className="flex flex-col"><FormLabel>Data do Gasto</FormLabel><Popover>
+                                <PopoverTrigger asChild><FormControl>
+                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                        <CalendarIcon className="mr-2 h-4 w-4" />{field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
+                                    </Button></FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus locale={ptBR} /></PopoverContent>
+                            </Popover><FormMessage /></FormItem>
+                        )} />
                         <DialogFooter><Button type="submit">Adicionar</Button></DialogFooter>
                     </form>
                 </Form>
