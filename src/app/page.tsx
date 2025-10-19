@@ -7,7 +7,7 @@ import { Users, Banknote, Droplet, Milestone, AlertTriangle, Wallet } from 'luci
 import { getStudents, resetAllPayments } from '@/lib/firebase/firestore-students';
 import { getTrips, deleteAllTrips } from '@/lib/firebase/firestore-trips';
 import { getFuelExpenses, deleteAllFuelExpenses } from '@/lib/firebase/firestore-fuel';
-import { getGeneralExpenses, deleteAllGeneralExpenses } from '@/lib/firebase/firestore-general-expenses';
+import { getGeneralExpenses, resetGeneralExpenses } from '@/lib/firebase/firestore-general-expenses';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -67,7 +67,7 @@ export default function Home() {
                 resetAllPayments(),
                 deleteAllTrips(),
                 deleteAllFuelExpenses(),
-                deleteAllGeneralExpenses(),
+                resetGeneralExpenses(),
             ]);
             await fetchData();
             toast({ title: "Sucesso!", description: "O mês foi reiniciado. Pronto para um novo começo!" });
@@ -83,7 +83,10 @@ export default function Home() {
         const receitaViagens = trips.filter(t => t.statusPagamento === 'Pago').reduce((acc, t) => acc + t.valor, 0);
 
         const despesaCombustivel = fuelExpenses.reduce((acc, f) => acc + f.valor, 0);
-        const despesasGerais = generalExpenses.reduce((acc, g) => acc + g.valor, 0);
+        const despesasGerais = generalExpenses.reduce((acc, g) => {
+            const valorParcela = g.totalInstallments ? g.valor / g.totalInstallments : g.valor;
+            return acc + valorParcela;
+        }, 0);
         const despesasTotais = despesaCombustivel + despesasGerais;
         
         const receitaBruta = receitaAlunos + receitaViagens;
@@ -119,7 +122,7 @@ export default function Home() {
                         <AlertDialogHeader>
                             <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                Esta ação é irreversível. Todos os registros de <span className="font-bold">viagens, gastos com combustível e gastos gerais serão excluídos</span>, e o status de pagamento de <span className="font-bold">todos os alunos será definido como "Pendente"</span>. Use isso para começar um novo ciclo mensal.
+                                Esta ação é irreversível. Todos os registros de <span className="font-bold">viagens e gastos com combustível serão excluídos</span>. Gastos gerais não parcelados serão excluídos, e os parcelados terão sua parcela atual avançada. O status de pagamento de <span className="font-bold">todos os alunos será definido como "Pendente"</span>. Use isso para começar um novo ciclo mensal.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

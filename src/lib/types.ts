@@ -39,4 +39,6 @@ export interface GeneralExpense {
   description: string;
   paymentMethod: PaymentMethod;
   category: ExpenseCategory;
+  currentInstallment?: number;
+  totalInstallments?: number;
 }

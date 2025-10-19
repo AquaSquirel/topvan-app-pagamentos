@@ -16,7 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -50,6 +50,8 @@ const expenseSchema = z.object({
   }),
   data: z.date({ required_error: 'A data é obrigatória.' }),
   paymentMethod: z.enum(["PIX", "Cartão Banco Brasil", "Cartão Nubank", "Cartão Naza", "Outro"]),
+  currentInstallment: z.coerce.number().optional(),
+  totalInstallments: z.coerce.number().optional(),
 });
 
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
@@ -64,13 +66,24 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
             valor: '0',
             data: new Date(),
             paymentMethod: 'PIX',
+            currentInstallment: 1,
+            totalInstallments: 1
         },
     });
 
+    const paymentMethod = useWatch({
+      control: form.control,
+      name: 'paymentMethod'
+    });
+
+    const isInstallment = paymentMethod !== 'PIX';
+
     const onSubmit = (data: ExpenseFormValues) => {
-        const expenseData = {
+        const expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
             ...data,
             data: data.data.toISOString(),
+            currentInstallment: isInstallment ? data.currentInstallment : undefined,
+            totalInstallments: isInstallment ? data.totalInstallments : undefined,
         };
         onAddExpense(expenseData);
         form.reset();
@@ -115,6 +128,16 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                                 </Select><FormMessage />
                             </FormItem>
                         )} />
+                        {isInstallment && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField control={form.control} name="currentInstallment" render={({ field }) => (
+                                <FormItem><FormLabel>Parcela Atual</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                            <FormField control={form.control} name="totalInstallments" render={({ field }) => (
+                                <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                          </div>
+                        )}
                         <DialogFooter><Button type="submit">Adicionar</Button></DialogFooter>
                     </form>
                 </Form>
@@ -126,8 +149,21 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
 const ExpenseCard = ({ expense, onDelete }: { expense: GeneralExpense; onDelete: (id: string) => void }) => (
     <div className="bg-card rounded-lg border overflow-hidden flex justify-between items-start p-4">
         <div>
-            <p className="font-semibold text-lg">{expense.description}</p>
-            <p className="text-md font-bold">{formatCurrency(expense.valor)}</p>
+            <div className='flex items-center gap-2'>
+              <p className="font-semibold text-lg">{expense.description}</p>
+              {expense.totalInstallments && (
+                <span className="text-xs font-bold bg-primary/20 text-primary-foreground py-0.5 px-2 rounded-full">
+                  {expense.currentInstallment}/{expense.totalInstallments}
+                </span>
+              )}
+            </div>
+            <p className="text-md font-bold">
+              {expense.totalInstallments 
+                ? `${formatCurrency(expense.valor / expense.totalInstallments)}`
+                : formatCurrency(expense.valor)
+              }
+              {expense.totalInstallments && <span className="text-sm font-normal text-muted-foreground"> / {formatCurrency(expense.valor)} Total</span>}
+            </p>
             <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5"><Wallet size={14} /><p>{expense.paymentMethod}</p></div>
               <div className="flex items-center gap-1.5"><Tag size={14} /><p>{expense.category}</p></div>
@@ -183,9 +219,14 @@ export default function GastosPage() {
     };
 
     const { totalSpent, chartData } = useMemo(() => {
-        const total = expenses.reduce((acc, exp) => acc + exp.valor, 0);
+        const total = expenses.reduce((acc, exp) => {
+            const valorParcela = exp.totalInstallments ? exp.valor / exp.totalInstallments : exp.valor;
+            return acc + valorParcela;
+        }, 0);
+        
         const dataByCategory = expenses.reduce((acc, expense) => {
-            acc[expense.category] = (acc[expense.category] || 0) + expense.valor;
+            const valorParcela = expense.totalInstallments ? expense.valor / expense.totalInstallments : expense.valor;
+            acc[expense.category] = (acc[expense.category] || 0) + valorParcela;
             return acc;
         }, {} as Record<ExpenseCategory, number>);
 
@@ -208,7 +249,7 @@ export default function GastosPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                  <Card>
-                    <CardHeader><CardTitle>Gasto Total</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Gasto Total (Mês)</CardTitle></CardHeader>
                     <CardContent>{loading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold text-red-500">{formatCurrency(totalSpent)}</p>}</CardContent>
                 </Card>
                  <Card>

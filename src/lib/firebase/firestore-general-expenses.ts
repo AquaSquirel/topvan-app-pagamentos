@@ -8,7 +8,8 @@ import {
     doc,
     query,
     orderBy,
-    writeBatch
+    writeBatch,
+    updateDoc
 } from 'firebase/firestore';
 
 const GENERAL_EXPENSES_COLLECTION = 'generalExpenses';
@@ -31,12 +32,26 @@ export const deleteGeneralExpense = async (expenseId: string): Promise<void> => 
     await deleteDoc(expenseDoc);
 };
 
-export const deleteAllGeneralExpenses = async (): Promise<void> => {
+export const resetGeneralExpenses = async (): Promise<void> => {
     const batch = writeBatch(db);
     const expensesCollection = collection(db, GENERAL_EXPENSES_COLLECTION);
     const querySnapshot = await getDocs(expensesCollection);
+    
     querySnapshot.forEach(doc => {
-        batch.delete(doc.ref);
+        const expense = doc.data() as GeneralExpense;
+        if (expense.totalInstallments && expense.currentInstallment) {
+            if (expense.currentInstallment < expense.totalInstallments) {
+                // Increment installment
+                batch.update(doc.ref, { currentInstallment: expense.currentInstallment + 1 });
+            } else {
+                // Last installment paid, delete it
+                batch.delete(doc.ref);
+            }
+        } else {
+            // Not an installment, delete it
+            batch.delete(doc.ref);
+        }
     });
+
     await batch.commit();
 };
