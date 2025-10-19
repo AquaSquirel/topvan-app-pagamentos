@@ -56,14 +56,14 @@ const expenseSchema = z.object({
 
 type ExpenseFormValues = z.infer<typeof expenseSchema>;
 
-const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data: Omit<GeneralExpense, 'id' | 'category'> & { category?: ExpenseCategory }) => void; isCategorizing: boolean; }) => {
+const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data: Omit<GeneralExpense, 'id' | 'category'>) => void; isCategorizing: boolean; }) => {
     const [isOpen, setIsOpen] = useState(false);
     
     const form = useForm<ExpenseFormValues>({
         resolver: zodResolver(expenseSchema),
         defaultValues: {
             description: '',
-            valor: '0',
+            valor: 0,
             data: new Date(),
             paymentMethod: 'PIX',
             totalInstallments: 1
@@ -78,12 +78,18 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
     const isInstallment = paymentMethod !== 'PIX';
 
     const onSubmit = (data: ExpenseFormValues) => {
-        const expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
-            ...data,
+        const expenseData: any = {
+            description: data.description,
+            valor: data.valor,
             data: data.data.toISOString(),
-            currentInstallment: isInstallment ? 1 : undefined,
-            totalInstallments: isInstallment ? data.totalInstallments : undefined,
+            paymentMethod: data.paymentMethod,
         };
+
+        if (isInstallment) {
+            expenseData.currentInstallment = 1;
+            expenseData.totalInstallments = data.totalInstallments;
+        }
+
         onAddExpense(expenseData);
         form.reset();
         setIsOpen(false);
@@ -106,7 +112,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                         <FormField control={form.control} name="valor" render={({ field }) => (
                             <FormItem><FormLabel>Valor</FormLabel><FormControl>
                                 <div className="relative"><span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} /></div>
+                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} onChange={e => field.onChange(e.target.value)} value={field.value || ''} /></div>
                             </FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={form.control} name="data" render={({ field }) => (
@@ -130,7 +136,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                         {isInstallment && (
                           <div className="grid grid-cols-1 gap-4">
                             <FormField control={form.control} name="totalInstallments" render={({ field }) => (
-                                <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Total de Parcelas</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} value={field.value || 1} /></FormControl><FormMessage /></FormItem>
                             )} />
                           </div>
                         )}
