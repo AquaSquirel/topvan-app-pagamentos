@@ -5,19 +5,15 @@ import { z } from 'genkit';
 
 const ExpenseCategories = z.enum(["Alimentação", "Manutenção do Veículo", "Saúde", "Lazer", "Pessoal", "Educação", "Outros"]);
 
-export const CategorizeExpenseInputSchema = z.object({
+const CategorizeExpenseInputSchema = z.object({
   description: z.string().describe('A descrição de um gasto a ser categorizado.'),
 });
 export type CategorizeExpenseInput = z.infer<typeof CategorizeExpenseInputSchema>;
 
-export const CategorizeExpenseOutputSchema = z.object({
+const CategorizeExpenseOutputSchema = z.object({
   category: ExpenseCategories.describe('A categoria do gasto.'),
 });
 export type CategorizeExpenseOutput = z.infer<typeof CategorizeExpenseOutputSchema>;
-
-export async function categorizeExpense(input: CategorizeExpenseInput): Promise<CategorizeExpenseOutput> {
-  return categorizeExpenseFlow(input);
-}
 
 const categorizeExpenseFlow = ai.defineFlow(
   {
@@ -43,3 +39,7 @@ const categorizeExpenseFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function categorizeExpense(input: CategorizeExpenseInput): Promise<CategorizeExpenseOutput> {
+  return categorizeExpenseFlow(input);
+}
