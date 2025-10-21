@@ -41,7 +41,6 @@ const chartConfig: any = Object.fromEntries(
     Object.entries(categoryColors).map(([key, value], i) => [key, { label: key, color: value.replace('hsl(var(--chart-', '').replace('))', '')}])
 );
 
-
 const expenseSchema = z.object({
   description: z.string().min(3, { message: 'A descrição deve ter pelo menos 3 caracteres.' }),
   valor: z.string().refine(val => val !== '' && !isNaN(parseFloat(val.replace(',', '.'))), {
@@ -49,9 +48,9 @@ const expenseSchema = z.object({
   }).transform(val => parseFloat(val.replace(',', '.'))).refine(val => val > 0, {
     message: "O valor deve ser positivo."
   }),
-  data: z.date({ required_error: 'A data é obrigatória.' }),
   paymentMethod: z.enum(["PIX", "Cartão Banco Brasil", "Cartão Nubank", "Cartão Naza", "Outro"]),
-  totalInstallments: z.string().optional().transform(val => val ? parseInt(val, 10) : undefined),
+  totalInstallments: z.string().optional().transform(val => val ? parseInt(val, 10) : 1),
+  data: z.date({ required_error: 'A data é obrigatória.' }),
 }).refine(data => {
     if (data.paymentMethod !== 'PIX') {
         return data.totalInstallments && data.totalInstallments > 0;
@@ -72,9 +71,9 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
         defaultValues: {
             description: '',
             valor: undefined,
-            data: new Date(),
             paymentMethod: 'PIX',
-            totalInstallments: 1
+            totalInstallments: '1',
+            data: new Date(),
         },
     });
 
@@ -103,9 +102,9 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
         form.reset({
             description: '',
             valor: undefined,
-            data: new Date(),
             paymentMethod: 'PIX',
-            totalInstallments: 1
+            totalInstallments: '1',
+            data: new Date(),
         });
         setIsOpen(false);
     };
@@ -115,7 +114,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
             <DialogTrigger asChild>
                 <Button disabled={isCategorizing}><Plus className="mr-2 h-4 w-4" /> {isCategorizing ? 'Categorizando...' : 'Adicionar Gasto'}</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Adicionar Gasto Geral</DialogTitle>
                 </DialogHeader>
@@ -217,7 +216,7 @@ export default function GastosPage() {
             let newExpense: Omit<GeneralExpense, 'id'> = { ...data, category };
 
             // Ensure installment fields are handled correctly
-            if (!data.totalInstallments) {
+            if (!data.totalInstallments || data.paymentMethod === 'PIX') {
                 const { currentInstallment, totalInstallments, ...releventData } = newExpense as any;
                 newExpense = releventData;
             }
