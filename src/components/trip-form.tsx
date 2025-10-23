@@ -52,7 +52,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
         const defaultValues = {
           destino: trip?.destino ?? '',
           contratante: trip?.contratante ?? '',
-          valor: trip?.valor ? String(trip.valor) : undefined,
+          valor: trip?.valor ? String(trip.valor) : '',
           data: trip ? new Date(trip.data) : new Date(),
         };
         form.reset(defaultValues);
