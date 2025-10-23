@@ -37,7 +37,6 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
 
   const TriggerButton = () => (
     <Button
-      type="button"
       variant={"outline"}
       className={cn(
         "w-full justify-start text-left font-normal",

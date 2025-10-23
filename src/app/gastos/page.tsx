@@ -51,11 +51,11 @@ const expenseSchema = z.object({
 }).refine(data => {
     if (data.paymentMethod !== 'PIX') {
         const installments = data.totalInstallments ? parseInt(data.totalInstallments, 10) : 0;
-        return installments > 0;
+        return !isNaN(installments) && installments > 0;
     }
     return true;
 }, {
-    message: "O número de parcelas é obrigatório para essa forma de pagamento.",
+    message: "O número de parcelas é obrigatório e deve ser maior que zero.",
     path: ["totalInstallments"],
 });
 
@@ -90,20 +90,22 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
     }, [isInstallment, form]);
 
     const onSubmit = (data: ExpenseFormValues) => {
-        let expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
+        let expenseData: Partial<Omit<GeneralExpense, 'id' | 'category'>> = {
             description: data.description,
             valor: data.valor,
             data: data.data.toISOString(),
             paymentMethod: data.paymentMethod,
-            category: "Outros" // Placeholder, will be replaced by AI
         };
         
         if (isInstallment && data.totalInstallments) {
             expenseData.currentInstallment = 1;
             expenseData.totalInstallments = parseInt(data.totalInstallments, 10);
+        } else {
+             delete expenseData.currentInstallment;
+             delete expenseData.totalInstallments;
         }
 
-        onAddExpense(expenseData);
+        onAddExpense(expenseData as Omit<GeneralExpense, 'id' | 'category'>);
         form.reset({
             description: '',
             valor: undefined,
