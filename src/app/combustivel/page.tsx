@@ -35,7 +35,8 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
     const [date, setDate] = React.useState<Date | undefined>(new Date());
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
         const valorString = valor.replace(',', '.');
         const litrosString = litros.replace(',', '.');
         
@@ -71,17 +72,17 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
                 <DialogHeader>
                     <DialogTitle>Adicionar Gasto com Combustível</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
+                <form onSubmit={handleSubmit} className="space-y-4 py-4">
                      <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
                         <Input type="text" inputMode="decimal" placeholder="Valor Gasto" value={valor} onChange={(e) => setValor(e.target.value)} className="pl-9" />
                     </div>
                     <Input type="text" inputMode="decimal" placeholder="Litros (Opcional)" value={litros} onChange={(e) => setLitros(e.target.value)} />
                     <DatePickerResponsive date={date} setDate={setDate} />
-                </div>
-                <DialogFooter>
-                    <Button onClick={handleSubmit}>Adicionar</Button>
-                </DialogFooter>
+                    <DialogFooter>
+                        <Button type="submit">Adicionar</Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

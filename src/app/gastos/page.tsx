@@ -50,7 +50,8 @@ const expenseSchema = z.object({
   data: z.date({ required_error: 'A data é obrigatória.' }),
 }).refine(data => {
     if (data.paymentMethod !== 'PIX') {
-        return data.totalInstallments && parseInt(data.totalInstallments, 10) > 0;
+        const installments = data.totalInstallments ? parseInt(data.totalInstallments, 10) : 0;
+        return installments > 0;
     }
     return true;
 }, {
@@ -84,6 +85,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
     useEffect(() => {
         if (!isInstallment) {
             form.setValue('totalInstallments', '1');
+            form.clearErrors('totalInstallments');
         }
     }, [isInstallment, form]);
 
@@ -129,7 +131,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                         <FormField control={form.control} name="valor" render={({ field }) => (
                              <FormItem><FormLabel>Valor</FormLabel><FormControl>
                                 <div className="relative"><span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} onChange={e => field.onChange(e.target.value)} value={field.value || ''} /></div>
+                                <Input type="text" inputMode="decimal" className="pl-9" placeholder="25,50" {...field} onChange={e => field.onChange(e.target.value)} value={field.value ?? ''} /></div>
                             </FormControl><FormMessage /></FormItem>
                         )} />
                         
@@ -211,14 +213,14 @@ export default function GastosPage() {
         setIsCategorizing(true);
         try {
             const { category } = await categorizeExpense({ description: data.description });
-            let newExpense: Omit<GeneralExpense, 'id'> = { ...data, category };
+            let newExpense: Partial<Omit<GeneralExpense, 'id'>> = { ...data, category };
             
             if (newExpense.paymentMethod === 'PIX' || !newExpense.totalInstallments) {
-               delete (newExpense as Partial<typeof newExpense>).currentInstallment;
-               delete (newExpense as Partial<typeof newExpense>).totalInstallments;
+               delete newExpense.currentInstallment;
+               delete newExpense.totalInstallments;
             }
             
-            await addGeneralExpense(newExpense);
+            await addGeneralExpense(newExpense as Omit<GeneralExpense, 'id'>);
             await fetchExpenses();
             toast({ title: "Sucesso!", description: "Gasto adicionado e categorizado." });
         } catch (error) {

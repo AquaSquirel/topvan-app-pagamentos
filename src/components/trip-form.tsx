@@ -14,7 +14,7 @@ import { DatePickerResponsive } from '@/components/date-picker-responsive';
 const tripSchema = z.object({
   destino: z.string().min(3, { message: 'O destino deve ter pelo menos 3 caracteres.' }),
   contratante: z.string().optional(),
-  valor: z.string().refine(val => !isNaN(parseFloat(val.replace(',', '.'))), {
+  valor: z.string().refine(val => val !== '' && !isNaN(parseFloat(val.replace(',', '.'))), {
     message: "Valor inválido"
   }).transform(val => parseFloat(val.replace(',', '.'))).refine(val => val >= 0, {
     message: "O valor não pode ser negativo."
@@ -42,7 +42,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
     defaultValues: {
       destino: '',
       contratante: '',
-      valor: '',
+      valor: undefined,
       data: new Date(),
     },
   });
@@ -52,7 +52,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
         const defaultValues = {
           destino: trip?.destino ?? '',
           contratante: trip?.contratante ?? '',
-          valor: trip?.valor ? String(trip.valor).replace('.', ',') : '',
+          valor: trip?.valor ? String(trip.valor) : undefined,
           data: trip ? new Date(trip.data) : new Date(),
         };
         form.reset(defaultValues);
@@ -116,7 +116,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
                   <FormControl>
                      <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                        <Input type="text" inputMode="decimal" className="pl-9" placeholder="150,00" {...field} value={field.value || ''} />
+                        <Input type="text" inputMode="decimal" className="pl-9" placeholder="150,00" {...field} value={field.value ?? ''} />
                     </div>
                   </FormControl>
                   <FormMessage />
