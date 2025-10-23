@@ -121,7 +121,7 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
             <DialogTrigger asChild>
                 <Button disabled={isCategorizing}><Plus className="mr-2 h-4 w-4" /> {isCategorizing ? 'Categorizando...' : 'Adicionar Gasto'}</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto overflow-y-auto">
+            <DialogContent className="sm:max-w-[425px] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Adicionar Gasto Geral</DialogTitle>
                 </DialogHeader>

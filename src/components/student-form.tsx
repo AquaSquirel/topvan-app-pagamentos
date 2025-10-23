@@ -87,7 +87,7 @@ export const StudentForm: React.FC<StudentFormProps> = ({
           <DialogTitle>{student ? 'Editar Aluno' : 'Adicionar Novo Aluno'}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
             <FormField
               control={form.control}
               name="name"

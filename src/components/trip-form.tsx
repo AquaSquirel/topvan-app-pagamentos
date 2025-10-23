@@ -43,7 +43,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
       destino: '',
       contratante: '',
       valor: undefined,
-      data: undefined,
+      data: new Date(),
     },
   });
 
@@ -84,7 +84,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{trip ? 'Editar Viagem' : 'Adicionar Nova Viagem'}</DialogTitle>
         </DialogHeader>

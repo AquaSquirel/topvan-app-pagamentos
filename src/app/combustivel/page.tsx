@@ -68,7 +68,7 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
             <DialogTrigger asChild>
                 <Button><Plus className="mr-2 h-4 w-4" /> Adicionar Gasto</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto overflow-y-auto">
+            <DialogContent className="sm:max-w-[425px] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Adicionar Gasto com Combustível</DialogTitle>
                 </DialogHeader>
