@@ -16,6 +16,9 @@ import {
 import {
   Drawer,
   DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -38,7 +41,6 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
   const TriggerButton = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => (
     <Button
       variant={"outline"}
-      type="button"
       className={cn(
         "w-full justify-start text-left font-normal",
         !date && "text-muted-foreground"
@@ -60,7 +62,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         onSelect={handleSelectDate}
         initialFocus
         locale={ptBR}
-        className={cn(!isDesktop && "w-full")}
+        className={cn(!isDesktop && "w-full border-0")}
         classNames={{
           months: cn(!isDesktop && "w-full"),
           month: cn(!isDesktop && "w-full space-y-6"),
@@ -95,7 +97,11 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         <TriggerButton />
       </DrawerTrigger>
       <DrawerContent>
-        <div className="mt-4 border-t flex items-center justify-center min-h-[50vh] p-4">
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>Selecione uma data</DrawerTitle>
+          <DrawerDescription>Use o calendário para escolher a data.</DrawerDescription>
+        </DrawerHeader>
+        <div className="mt-4 flex items-center justify-center min-h-[50vh] p-4">
           <CalendarComponent />
         </div>
       </DrawerContent>
