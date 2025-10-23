@@ -83,7 +83,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         <TriggerButton />
       </DrawerTrigger>
       <DrawerContent>
-        <div className="mt-4 border-t pb-4">
+        <div className="mt-4 border-t flex items-center justify-center min-h-[50vh]">
           <CalendarComponent />
         </div>
       </DrawerContent>
