@@ -32,7 +32,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
 
   const handleSelectDate = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
-    setOpen(false);
+    setOpen(false); // Close drawer/popover on date select
   };
 
   const TriggerButton = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => (
@@ -60,6 +60,18 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         onSelect={handleSelectDate}
         initialFocus
         locale={ptBR}
+        className={cn(!isDesktop && "w-full")}
+        classNames={{
+          months: cn(!isDesktop && "w-full"),
+          month: cn(!isDesktop && "w-full space-y-6"),
+          table: cn(!isDesktop && "w-full border-separate border-spacing-2"),
+          head_cell: cn(!isDesktop && "w-auto text-lg"),
+          row: cn(!isDesktop && "flex w-full mt-2"),
+          cell: cn(!isDesktop && "h-14 w-14 text-center text-lg p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20"),
+          day: cn(!isDesktop && "h-14 w-14 p-0 font-normal aria-selected:opacity-100 text-lg"),
+          caption_label: cn(!isDesktop && "text-2xl"),
+          nav_button: cn(!isDesktop && "h-10 w-10"),
+        }}
         {...calendarProps}
       />
   )
@@ -83,7 +95,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         <TriggerButton />
       </DrawerTrigger>
       <DrawerContent>
-        <div className="mt-4 border-t flex items-center justify-center min-h-[50vh]">
+        <div className="mt-4 border-t flex items-center justify-center min-h-[50vh] p-4">
           <CalendarComponent />
         </div>
       </DrawerContent>
