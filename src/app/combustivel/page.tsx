@@ -11,11 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from "lucide-react"
-import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
-import { ptBR } from 'date-fns/locale';
+import { DatePickerResponsive } from '@/components/date-picker-responsive';
 
 
 const ExpenseCard = ({ expense, onDelete }: { expense: FuelExpense; onDelete: (id: string) => void }) => {
@@ -36,7 +32,7 @@ const ExpenseCard = ({ expense, onDelete }: { expense: FuelExpense; onDelete: (i
 const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExpense, 'id'>) => void }) => {
     const [valor, setValor] = useState('');
     const [litros, setLitros] = useState('');
-    const [date, setDate] = React.useState<Date>(new Date());
+    const [date, setDate] = React.useState<Date | undefined>(new Date());
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSubmit = () => {
@@ -71,7 +67,7 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
             <DialogTrigger asChild>
                 <Button><Plus className="mr-2 h-4 w-4" /> Adicionar Gasto</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Adicionar Gasto com Combustível</DialogTitle>
                 </DialogHeader>
@@ -81,29 +77,7 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
                         <Input type="text" inputMode="decimal" placeholder="Valor Gasto" value={valor} onChange={(e) => setValor(e.target.value)} className="pl-9" />
                     </div>
                     <Input type="text" inputMode="decimal" placeholder="Litros (Opcional)" value={litros} onChange={(e) => setLitros(e.target.value)} />
-                     <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !date && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(date, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={(d) => setDate(d || new Date())}
-                            initialFocus
-                            locale={ptBR}
-                          />
-                        </PopoverContent>
-                    </Popover>
+                    <DatePickerResponsive date={date} setDate={setDate} />
                 </div>
                 <DialogFooter>
                     <Button onClick={handleSubmit}>Adicionar</Button>

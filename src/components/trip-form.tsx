@@ -9,12 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { DatePickerResponsive } from '@/components/date-picker-responsive';
 
 const tripSchema = z.object({
   destino: z.string().min(3, { message: 'O destino deve ter pelo menos 3 caracteres.' }),
@@ -57,7 +52,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
         const defaultValues = {
           destino: trip?.destino ?? '',
           contratante: trip?.contratante ?? '',
-          valor: trip?.valor ? String(trip.valor) : '',
+          valor: trip?.valor ? String(trip.valor).replace('.', ',') : '',
           data: trip ? new Date(trip.data) : new Date(),
         };
         form.reset(defaultValues);
@@ -80,7 +75,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{trip ? 'Editar Viagem' : 'Adicionar Nova Viagem'}</DialogTitle>
         </DialogHeader>
@@ -121,7 +116,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
                   <FormControl>
                      <div className="relative">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">R$</span>
-                        <Input type="text" inputMode="decimal" className="pl-9" placeholder="150,00" {...field} />
+                        <Input type="text" inputMode="decimal" className="pl-9" placeholder="150,00" {...field} value={field.value || ''} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -134,31 +129,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Data da Viagem</FormLabel>
-                  <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                                variant={"outline"}
-                                className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
-                            </Button>
-                           </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            locale={ptBR}
-                          />
-                        </PopoverContent>
-                    </Popover>
+                    <DatePickerResponsive date={field.value} setDate={field.onChange} />
                   <FormMessage />
                 </FormItem>
               )}

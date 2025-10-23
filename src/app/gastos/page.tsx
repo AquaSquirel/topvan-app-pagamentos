@@ -6,17 +6,14 @@ import { categorizeExpense } from '@/ai/flows/categorize-expense-flow';
 import { getGeneralExpenses, addGeneralExpense, deleteGeneralExpense } from '@/lib/firebase/firestore-general-expenses';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, CalendarIcon, Wallet, Tag } from 'lucide-react';
+import { Plus, Trash2, Wallet, Tag } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
-import { ptBR } from 'date-fns/locale';
+import { DatePickerResponsive } from '@/components/date-picker-responsive';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,7 +35,7 @@ const categoryColors: Record<ExpenseCategory, string> = {
 };
 
 const chartConfig: any = Object.fromEntries(
-    Object.entries(categoryColors).map(([key, value], i) => [key, { label: key, color: value.replace('hsl(var(--chart-', '').replace('))', '')}])
+    Object.entries(categoryColors).map(([key, value], i) => [key, { label: key, color: value }])
 );
 
 const expenseSchema = z.object({
@@ -49,15 +46,15 @@ const expenseSchema = z.object({
     message: "O valor deve ser positivo."
   }),
   paymentMethod: z.enum(["PIX", "Cartão Banco Brasil", "Cartão Nubank", "Cartão Naza", "Outro"]),
-  totalInstallments: z.string().optional().transform(val => val ? parseInt(val, 10) : 1),
+  totalInstallments: z.string().optional(),
   data: z.date({ required_error: 'A data é obrigatória.' }),
 }).refine(data => {
     if (data.paymentMethod !== 'PIX') {
-        return data.totalInstallments && data.totalInstallments > 0;
+        return data.totalInstallments && parseInt(data.totalInstallments, 10) > 0;
     }
     return true;
 }, {
-    message: "O número de parcelas é obrigatório e deve ser maior que zero para essa forma de pagamento.",
+    message: "O número de parcelas é obrigatório para essa forma de pagamento.",
     path: ["totalInstallments"],
 });
 
@@ -76,13 +73,19 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
             data: new Date(),
         },
     });
-
+    
     const paymentMethod = useWatch({
       control: form.control,
       name: 'paymentMethod'
     });
 
     const isInstallment = paymentMethod !== 'PIX';
+    
+    useEffect(() => {
+        if (!isInstallment) {
+            form.setValue('totalInstallments', '1');
+        }
+    }, [isInstallment, form]);
 
     const onSubmit = (data: ExpenseFormValues) => {
         let expenseData: Omit<GeneralExpense, 'id' | 'category'> = {
@@ -92,10 +95,10 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
             paymentMethod: data.paymentMethod,
             category: "Outros" // Placeholder, will be replaced by AI
         };
-
+        
         if (isInstallment && data.totalInstallments) {
             expenseData.currentInstallment = 1;
-            expenseData.totalInstallments = data.totalInstallments;
+            expenseData.totalInstallments = parseInt(data.totalInstallments, 10);
         }
 
         onAddExpense(expenseData);
@@ -146,14 +149,9 @@ const AddExpenseForm = ({ onAddExpense, isCategorizing }: { onAddExpense: (data:
                           </div>
                         )}
                         <FormField control={form.control} name="data" render={({ field }) => (
-                            <FormItem className="flex flex-col"><FormLabel>Data do Gasto</FormLabel><Popover>
-                                <PopoverTrigger asChild><FormControl>
-                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />{field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
-                                    </Button></FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus locale={ptBR} /></PopoverContent>
-                            </Popover><FormMessage /></FormItem>
+                            <FormItem className="flex flex-col"><FormLabel>Data do Gasto</FormLabel>
+                            <DatePickerResponsive date={field.value} setDate={field.onChange} />
+                            <FormMessage /></FormItem>
                         )} />
                         <DialogFooter><Button type="submit">Adicionar</Button></DialogFooter>
                     </form>
@@ -214,11 +212,10 @@ export default function GastosPage() {
         try {
             const { category } = await categorizeExpense({ description: data.description });
             let newExpense: Omit<GeneralExpense, 'id'> = { ...data, category };
-
-            // Ensure installment fields are handled correctly
-            if (!data.totalInstallments || data.paymentMethod === 'PIX') {
-                const { currentInstallment, totalInstallments, ...releventData } = newExpense as any;
-                newExpense = releventData;
+            
+            if (newExpense.paymentMethod === 'PIX' || !newExpense.totalInstallments) {
+               delete (newExpense as Partial<typeof newExpense>).currentInstallment;
+               delete (newExpense as Partial<typeof newExpense>).totalInstallments;
             }
             
             await addGeneralExpense(newExpense);
@@ -283,7 +280,7 @@ export default function GastosPage() {
                         (chartData.length > 0 ? (
                              <ChartContainer config={chartConfig} className="mx-auto aspect-square h-full w-full max-h-[250px]">
                                 <PieChart>
-                                    <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
+                                    <ChartTooltip content={<ChartTooltipContent nameKey="value" hideLabel />} />
                                     <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} strokeWidth={2}>
                                       {chartData.map((entry) => (
                                         <Cell key={`cell-${entry.name}`} fill={entry.fill} />
