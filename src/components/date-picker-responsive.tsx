@@ -35,18 +35,23 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
     setOpen(false);
   };
 
-  const TriggerButton = () => (
+  const TriggerButton = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => (
     <Button
       variant={"outline"}
+      type="button"
       className={cn(
         "w-full justify-start text-left font-normal",
         !date && "text-muted-foreground"
       )}
+      ref={ref}
+      {...props}
     >
       <CalendarIcon className="mr-2 h-4 w-4" />
       {date ? format(date, "PPP", { locale: ptBR }) : <span>Selecione a data</span>}
     </Button>
-  );
+  ));
+  TriggerButton.displayName = 'TriggerButton';
+
 
   const CalendarComponent = () => (
      <Calendar
