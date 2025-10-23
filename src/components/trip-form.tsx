@@ -49,13 +49,23 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-        const defaultValues = {
-          destino: trip?.destino ?? '',
-          contratante: trip?.contratante ?? '',
-          valor: trip?.valor ? String(trip.valor) : '',
-          data: trip ? new Date(trip.data) : new Date(),
-        };
-        form.reset(defaultValues);
+      if (trip) {
+        // Edit mode: populate form with trip data
+        form.reset({
+          destino: trip.destino,
+          contratante: trip.contratante ?? '',
+          valor: String(trip.valor),
+          data: new Date(trip.data),
+        });
+      } else {
+        // Add mode: reset to default values
+        form.reset({
+          destino: '',
+          contratante: '',
+          valor: undefined,
+          data: new Date(),
+        });
+      }
     }
   }, [trip, isOpen, form]);
 
