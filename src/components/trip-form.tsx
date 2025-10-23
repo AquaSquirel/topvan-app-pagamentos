@@ -39,35 +39,20 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
 }) => {
   const form = useForm<TripFormValues>({
     resolver: zodResolver(tripSchema),
-    defaultValues: {
-      destino: '',
-      contratante: '',
-      valor: undefined,
-      data: new Date(),
-    },
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      if (trip) {
-        // Edit mode: populate form with trip data
-        form.reset({
+    defaultValues: trip
+      ? {
           destino: trip.destino,
           contratante: trip.contratante ?? '',
           valor: String(trip.valor),
           data: new Date(trip.data),
-        });
-      } else {
-        // Add mode: reset to default values
-        form.reset({
+        }
+      : {
           destino: '',
           contratante: '',
           valor: undefined,
           data: new Date(),
-        });
-      }
-    }
-  }, [trip, isOpen, form]);
+        },
+  });
 
   const onSubmit = (data: TripFormValues) => {
     const dataToSave = {

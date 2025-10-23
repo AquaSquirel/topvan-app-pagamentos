@@ -157,6 +157,7 @@ export default function ViagensPage() {
                 </div>
             </div>
              <AddTripForm
+                key={editingTrip ? editingTrip.id : 'new'}
                 isOpen={isTripFormOpen}
                 setIsOpen={setIsTripFormOpen}
                 trip={editingTrip}
