@@ -47,7 +47,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
     },
   });
 
-  useEffect(() => {
+   useEffect(() => {
     if (isOpen) {
       if (trip) {
         form.reset({

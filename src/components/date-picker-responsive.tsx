@@ -40,6 +40,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
 
   const TriggerButton = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => (
     <Button
+      type="button"
       variant={"outline"}
       className={cn(
         "w-full justify-start text-left font-normal",
@@ -97,7 +98,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         <TriggerButton />
       </DrawerTrigger>
       <DrawerContent>
-        <DrawerHeader className="sr-only">
+         <DrawerHeader className="sr-only">
           <DrawerTitle>Selecione uma data</DrawerTitle>
           <DrawerDescription>Use o calendário para escolher a data.</DrawerDescription>
         </DrawerHeader>
