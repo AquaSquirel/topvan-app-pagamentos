@@ -17,6 +17,9 @@ import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
 } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
 
@@ -95,6 +98,10 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         <TriggerButton />
       </DrawerTrigger>
       <DrawerContent>
+         <DrawerHeader className="sr-only">
+          <DrawerTitle>Seletor de Data</DrawerTitle>
+          <DrawerDescription>Selecione uma data no calendário.</DrawerDescription>
+        </DrawerHeader>
          <div className="mt-4 flex items-center justify-center min-h-[50vh] p-4">
           <CalendarComponent />
         </div>
