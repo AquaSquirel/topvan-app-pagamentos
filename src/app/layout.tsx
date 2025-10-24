@@ -13,7 +13,6 @@ const fontSans = FontSans({
 export const metadata: Metadata = {
   title: 'TopVan Manager',
   description: 'App de Gestão para TopVan',
-  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
