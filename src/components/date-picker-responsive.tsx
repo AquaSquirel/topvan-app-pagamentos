@@ -16,9 +16,6 @@ import {
 import {
   Drawer,
   DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -71,7 +68,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
           head_cell: cn(!isDesktop && "w-auto text-lg"),
           row: cn(!isDesktop && "flex w-full mt-2"),
           cell: cn(!isDesktop && "h-14 w-14 text-center text-lg p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20"),
-          day: cn(!isDesktop && "h-14 w-14 p-0 font-normal aria-selected:opacity-100 text-lg"),
+          day: cn("h-14 w-14 p-0 font-normal aria-selected:opacity-100 text-lg", !isDesktop && "h-14 w-14 text-lg"),
           caption_label: cn(!isDesktop && "text-2xl"),
           nav_button: cn(!isDesktop && "h-10 w-10"),
         }}
@@ -98,11 +95,7 @@ export function DatePickerResponsive({ date, setDate, calendarProps = {} }: Date
         <TriggerButton />
       </DrawerTrigger>
       <DrawerContent>
-         <DrawerHeader className="sr-only">
-          <DrawerTitle>Selecione uma data</DrawerTitle>
-          <DrawerDescription>Use o calendário para escolher a data.</DrawerDescription>
-        </DrawerHeader>
-        <div className="mt-4 flex items-center justify-center min-h-[50vh] p-4">
+         <div className="mt-4 flex items-center justify-center min-h-[50vh] p-4">
           <CalendarComponent />
         </div>
       </DrawerContent>
