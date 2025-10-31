@@ -49,8 +49,7 @@ export default function ViagensPage() {
                 toast({ title: "Sucesso!", description: "Viagem atualizada." });
             } else {
                 // Add
-                const newTrip = { ...tripData, statusPagamento: 'Pendente' as const };
-                await addTrip(newTrip);
+                await addTrip(tripData);
                 toast({ title: "Sucesso!", description: "Viagem adicionada." });
             }
             await fetchTrips();
@@ -87,8 +86,8 @@ export default function ViagensPage() {
         now.setHours(0, 0, 0, 0); 
         const sortedTrips = [...trips].sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
         
-        const upcoming = sortedTrips.filter(t => new Date(t.data) >= now);
-        const completed = sortedTrips.filter(t => new Date(t.data) < now);
+        const upcoming = sortedTrips.filter(t => new Date(t.data) >= now && t.statusPagamento !== 'Arquivado');
+        const completed = sortedTrips.filter(t => new Date(t.data) < now || t.statusPagamento === 'Arquivado');
         
         const revenue = trips.filter(t => t.statusPagamento === 'Pago').reduce((acc, trip) => acc + trip.valor, 0);
         const pending = trips.filter(t => t.statusPagamento === 'Pendente').reduce((acc, trip) => acc + trip.valor, 0);

@@ -77,7 +77,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
     if (trip) {
       onSave({ ...trip, ...dataToSave });
     } else {
-      onSave(dataToSave);
+      onSave(dataToSave as Omit<Trip, "id" | "statusPagamento">);
     }
     setIsOpen(false);
   };

@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Banknote, Droplet, Milestone, AlertTriangle, Wallet } from 'lucide-react';
 import { getStudents, resetAllPayments } from '@/lib/firebase/firestore-students';
-import { getTrips } from '@/lib/firebase/firestore-trips';
+import { getTrips, archivePaidTrips } from '@/lib/firebase/firestore-trips';
 import { getFuelExpenses, deleteAllFuelExpenses } from '@/lib/firebase/firestore-fuel';
 import { getGeneralExpenses, resetGeneralExpenses } from '@/lib/firebase/firestore-general-expenses';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -67,6 +67,7 @@ export default function Home() {
                 resetAllPayments(),
                 deleteAllFuelExpenses(),
                 resetGeneralExpenses(),
+                archivePaidTrips()
             ]);
             await fetchData();
             toast({ title: "Sucesso!", description: "O mês foi reiniciado. Pronto para um novo começo!" });
@@ -121,7 +122,7 @@ export default function Home() {
                         <AlertDialogHeader>
                             <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                Esta ação é irreversível. Todos os registros de <span className="font-bold">gastos com combustível serão excluídos</span>. Gastos gerais não parcelados serão excluídos, e os parcelados terão sua parcela atual avançada. O status de pagamento de <span className="font-bold">todos os alunos será definido como "Pendente"</span>. Use isso para começar um novo ciclo mensal.
+                                Esta ação é irreversível. Todos os registros de <span className="font-bold">gastos com combustível serão excluídos</span>. Gastos gerais não parcelados serão excluídos, e os parcelados terão sua parcela atual avançada. O status de pagamento de <span className="font-bold">todos os alunos será definido como "Pendente"</span> e o status de <span className="font-bold">viagens pagas será "Arquivado"</span>, não contando para a receita do novo mês.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

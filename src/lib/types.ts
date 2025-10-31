@@ -19,7 +19,7 @@ export interface Trip {
   contratante?: string;
   data: string; // ISO date string
   valor: number;
-  statusPagamento: 'Pago' | 'Pendente';
+  statusPagamento: 'Pago' | 'Pendente' | 'Arquivado';
 }
 
 export interface FuelExpense {

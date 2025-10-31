@@ -9,7 +9,8 @@ import {
     updateDoc,
     orderBy,
     query,
-    writeBatch
+    writeBatch,
+    where
 } from 'firebase/firestore';
 
 const TRIPS_COLLECTION = 'trips';
@@ -21,9 +22,10 @@ export const getTrips = async (): Promise<Trip[]> => {
     return tripsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Trip));
 };
 
-export const addTrip = async (trip: Omit<Trip, 'id'>): Promise<string> => {
+export const addTrip = async (trip: Omit<Trip, 'id' | 'statusPagamento'>): Promise<string> => {
     const tripsCollection = collection(db, TRIPS_COLLECTION);
-    const docRef = await addDoc(tripsCollection, trip);
+    const newTrip = { ...trip, statusPagamento: 'Pendente' as const };
+    const docRef = await addDoc(tripsCollection, newTrip);
     return docRef.id;
 };
 
@@ -36,4 +38,17 @@ export const updateTrip = async (trip: Trip): Promise<void> => {
 export const deleteTrip = async (tripId: string): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, tripId);
     await deleteDoc(tripDoc);
+};
+
+export const archivePaidTrips = async (): Promise<void> => {
+    const batch = writeBatch(db);
+    const tripsCollection = collection(db, TRIPS_COLLECTION);
+    const q = query(tripsCollection, where('statusPagamento', '==', 'Pago'));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+        batch.update(doc.ref, { statusPagamento: 'Arquivado' });
+    });
+
+    await batch.commit();
 };
