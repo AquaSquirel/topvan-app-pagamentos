@@ -3,7 +3,7 @@
 import type { Trip } from '@/lib/types';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Check, X, ChevronDown, Archive, Unarchive } from 'lucide-react';
+import { Edit, Trash2, Check, X, ChevronDown, Archive, ArchiveRestore } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -84,7 +84,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                       <Tooltip>
                         <TooltipTrigger asChild>
                            <Button onClick={onToggleArchive} variant="outline" size="icon" className="flex-1 sm:flex-auto">
-                                {isArchived ? <Unarchive className="h-5 w-5" /> : <Archive className="h-5 w-5" />}
+                                {isArchived ? <ArchiveRestore className="h-5 w-5" /> : <Archive className="h-5 w-5" />}
                                 <span className="sr-only">{isArchived ? 'Desarquivar' : 'Arquivar'}</span>
                             </Button>
                         </TooltipTrigger>
