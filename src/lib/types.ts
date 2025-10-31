@@ -27,6 +27,7 @@ export interface FuelExpense {
   data: string; // ISO date string
   valor: number;
   litros?: number;
+  description?: string;
 }
 
 export type PaymentMethod = "PIX" | "Cartão Banco Brasil" | "Cartão Nubank" | "Cartão Naza" | "Outro";

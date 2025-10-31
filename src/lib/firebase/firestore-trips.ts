@@ -37,13 +37,3 @@ export const deleteTrip = async (tripId: string): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, tripId);
     await deleteDoc(tripDoc);
 };
-
-export const deleteAllTrips = async (): Promise<void> => {
-    const batch = writeBatch(db);
-    const tripsCollection = collection(db, TRIPS_COLLECTION);
-    const querySnapshot = await getDocs(tripsCollection);
-    querySnapshot.forEach(doc => {
-        batch.delete(doc.ref);
-    });
-    await batch.commit();
-};

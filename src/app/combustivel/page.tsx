@@ -16,9 +16,10 @@ import { DatePickerResponsive } from '@/components/date-picker-responsive';
 
 const ExpenseCard = ({ expense, onDelete }: { expense: FuelExpense; onDelete: (id: string) => void }) => {
     return (
-        <div className="bg-card rounded-lg border overflow-hidden flex justify-between items-center p-4">
+        <div className="bg-card rounded-lg border overflow-hidden flex justify-between items-start p-4">
             <div>
                 <p className="font-semibold text-lg">{formatCurrency(expense.valor)}</p>
+                {expense.description && <p className="text-md font-medium text-muted-foreground">{expense.description}</p>}
                 <p className="text-sm text-muted-foreground">{formatDate(expense.data)}</p>
                 {expense.litros && <p className="text-sm text-muted-foreground">{expense.litros} litros</p>}
             </div>
@@ -32,6 +33,7 @@ const ExpenseCard = ({ expense, onDelete }: { expense: FuelExpense; onDelete: (i
 const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExpense, 'id'>) => void }) => {
     const [valor, setValor] = useState('');
     const [litros, setLitros] = useState('');
+    const [description, setDescription] = useState('');
     const [date, setDate] = React.useState<Date | undefined>(new Date());
     const [isOpen, setIsOpen] = useState(false);
 
@@ -54,10 +56,14 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
                     expenseData.litros = parsedLitros;
                 }
             }
+            if (description) {
+                expenseData.description = description;
+            }
             
             onAddExpense(expenseData);
             setValor('');
             setLitros('');
+            setDescription('');
             setDate(new Date());
             setIsOpen(false);
         }
@@ -78,6 +84,7 @@ const AddExpenseForm = ({ onAddExpense }: { onAddExpense: (expense: Omit<FuelExp
                         <Input type="text" inputMode="decimal" placeholder="Valor Gasto" value={valor} onChange={(e) => setValor(e.target.value)} className="pl-9" />
                     </div>
                     <Input type="text" inputMode="decimal" placeholder="Litros (Opcional)" value={litros} onChange={(e) => setLitros(e.target.value)} />
+                    <Input type="text" placeholder="Descrição (Opcional)" value={description} onChange={(e) => setDescription(e.target.value)} />
                     <DatePickerResponsive date={date} setDate={setDate} />
                     <DialogFooter>
                         <Button type="submit">Adicionar</Button>
