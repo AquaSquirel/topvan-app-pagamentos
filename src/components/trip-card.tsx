@@ -3,20 +3,27 @@
 import type { Trip } from '@/lib/types';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Check, X, ChevronDown, Archive } from 'lucide-react';
+import { Edit, Trash2, Check, X, ChevronDown, Archive, Unarchive } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface TripCardProps {
   trip: Trip;
   onEdit: () => void;
   onDelete: () => void;
   onTogglePayment: () => void;
+  onToggleArchive: () => void;
 }
 
-const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePayment }) => {
+const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePayment, onToggleArchive }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const isCompleted = new Date(trip.data).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
@@ -73,6 +80,20 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                     }
                 </Button>
                 <div className="flex gap-1 w-full sm:w-auto">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button onClick={onToggleArchive} variant="outline" size="icon" className="flex-1 sm:flex-auto">
+                                {isArchived ? <Unarchive className="h-5 w-5" /> : <Archive className="h-5 w-5" />}
+                                <span className="sr-only">{isArchived ? 'Desarquivar' : 'Arquivar'}</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{isArchived ? 'Desarquivar Viagem' : 'Arquivar Viagem'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
                     <Button onClick={onEdit} variant="outline" size="icon" className="flex-1 sm:flex-auto" disabled={isArchived}>
                         <Edit className="h-5 w-5" />
                         <span className="sr-only">Editar</span>

@@ -81,6 +81,20 @@ export default function ViagensPage() {
         }
     };
 
+    const handleToggleArchive = async (tripId: string) => {
+        const trip = trips.find(t => t.id === tripId);
+        if (!trip) return;
+
+        const newStatus = trip.statusPagamento === 'Arquivado' ? 'Pendente' : 'Arquivado';
+        try {
+            await updateTrip({ ...trip, statusPagamento: newStatus });
+            await fetchTrips();
+            toast({ title: "Sucesso!", description: `Viagem ${newStatus === 'Arquivado' ? 'arquivada' : 'desarquivada'}.` });
+        } catch (e) {
+            toast({ title: "Erro", description: "Não foi possível alterar o status de arquivamento.", variant: "destructive" });
+        }
+    };
+
     const { upcomingTrips, completedTrips, totalRevenue, totalPending } = useMemo(() => {
         const now = new Date();
         now.setHours(0, 0, 0, 0); 
@@ -134,6 +148,7 @@ export default function ViagensPage() {
                                 onEdit={() => openTripForm(trip)}
                                 onDelete={() => handleDeleteTrip(trip.id)} 
                                 onTogglePayment={() => handleTogglePayment(trip.id)}
+                                onToggleArchive={() => handleToggleArchive(trip.id)}
                             />
                         )}
                     </div>
@@ -150,6 +165,7 @@ export default function ViagensPage() {
                                 onEdit={() => openTripForm(trip)}
                                 onDelete={() => handleDeleteTrip(trip.id)} 
                                 onTogglePayment={() => handleTogglePayment(trip.id)}
+                                onToggleArchive={() => handleToggleArchive(trip.id)}
                             />
                         )}
                     </div>
