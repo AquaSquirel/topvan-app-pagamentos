@@ -60,7 +60,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                 </div>
                 {trip.contratante && <p className="text-sm text-muted-foreground">{trip.contratante}</p>}
                 <p className="text-sm text-muted-foreground mt-1">{formatDate(trip.data)}</p>
-                <p className="font-semibold text-base block mt-2">{formatCurrency(trip.valor)}</p>
+                {!trip.isReturnTrip && <p className="font-semibold text-base block mt-2">{formatCurrency(trip.valor)}</p>}
               </div>
               <ChevronDown className={cn("h-5 w-5 transition-transform", isOpen && "rotate-180")} />
             </div>
