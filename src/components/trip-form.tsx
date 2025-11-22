@@ -95,7 +95,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
      const dataToSave = {
         ...data,
         data: data.data.toISOString(),
-        dataVolta: data.temVolta && data.dataVolta ? data.dataVolta.toISOString() : undefined
+        dataVolta: data.temVolta && data.dataVolta ? data.dataVolta.toISOString() : null
     };
 
     if (trip) {

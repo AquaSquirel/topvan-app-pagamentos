@@ -45,6 +45,12 @@ export const addReturnTrip = async (idaDestino: string, dataVolta: string): Prom
 export const updateTrip = async (trip: Trip): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, trip.id);
     const { id, ...tripData } = trip;
+    
+    // Explicitly remove dataVolta if it's null or undefined to prevent Firestore error
+    if (tripData.dataVolta === null || tripData.dataVolta === undefined) {
+        delete tripData.dataVolta;
+    }
+
     await updateDoc(tripDoc, tripData);
 };
 
