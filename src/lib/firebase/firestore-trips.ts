@@ -1,3 +1,4 @@
+'use client';
 import { db } from '@/lib/firebase/config';
 import type { Trip } from '@/lib/types';
 import { 
@@ -10,7 +11,8 @@ import {
     orderBy,
     query,
     writeBatch,
-    where
+    where,
+    deleteField
 } from 'firebase/firestore';
 
 const TRIPS_COLLECTION = 'trips';
@@ -47,10 +49,10 @@ export const updateTrip = async (trip: Trip): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, trip.id);
     const { id, ...tripData } = trip;
     
-    // Explicitly handle temVolta and dataVolta fields
-    const dataToUpdate: Partial<Omit<Trip, 'id'>> = { ...tripData };
-    if (!dataToUpdate.temVolta) {
-        delete dataToUpdate.dataVolta;
+    const dataToUpdate: { [key: string]: any } = { ...tripData };
+
+    if (dataToUpdate.temVolta === false) {
+        dataToUpdate.dataVolta = deleteField();
     }
 
     await updateDoc(tripDoc, dataToUpdate);
@@ -63,7 +65,7 @@ export const deleteTrip = async (tripId: string): Promise<void> => {
 
 export const archivePaidTrips = async (): Promise<void> => {
     const batch = writeBatch(db);
-    const tripsCollection = collection(db, TRIPS_COLLECTION);
+    const tripsCollection = collection(db, TRIPS_COLlection);
     const q = query(tripsCollection, where('statusPagamento', '==', 'Pago'));
     const querySnapshot = await getDocs(q);
 

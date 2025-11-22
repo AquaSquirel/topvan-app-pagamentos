@@ -45,8 +45,7 @@ export default function ViagensPage() {
        try {
             if (tripData.id) {
                 // Update logic
-                const { temVolta, ...updateData } = tripData;
-                await updateTrip(updateData);
+                await updateTrip(tripData);
                 toast({ title: "Sucesso!", description: "Viagem atualizada." });
             } else {
                 // Add logic

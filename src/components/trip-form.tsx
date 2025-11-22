@@ -73,7 +73,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
           contratante: trip.contratante ?? '',
           valor: String(trip.valor),
           data: new Date(trip.data),
-          temVolta: trip.temVolta ?? !!trip.dataVolta,
+          temVolta: trip.temVolta ?? false,
           dataVolta: trip.dataVolta ? new Date(trip.dataVolta) : undefined,
         });
       } else {
@@ -94,13 +94,16 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
     const dataToSave: any = {
       ...data,
       data: data.data.toISOString(),
+      // Explicitly include temVolta from the form data
+      temVolta: data.temVolta, 
     };
 
     if (data.temVolta && data.dataVolta) {
       dataToSave.dataVolta = data.dataVolta.toISOString();
     } else {
-      dataToSave.temVolta = false;
+      // If no return trip, ensure dataVolta is null and temVolta is false
       dataToSave.dataVolta = null;
+      dataToSave.temVolta = false;
     }
 
     if (trip) {
