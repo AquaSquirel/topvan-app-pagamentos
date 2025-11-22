@@ -20,6 +20,7 @@ export interface Trip {
   data: string; // ISO date string
   valor: number;
   statusPagamento: 'Pago' | 'Pendente' | 'Arquivado';
+  temVolta?: boolean;
   dataVolta?: string; // ISO date string for return trip
   isReturnTrip?: boolean;
 }

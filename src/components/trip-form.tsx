@@ -1,7 +1,7 @@
 'use client';
 
 import type { Trip } from '@/lib/types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { DatePickerResponsive } from '@/components/date-picker-responsive';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 
 const tripSchema = z.object({
   destino: z.string().min(3, { message: 'O destino deve ter pelo menos 3 caracteres.' }),
@@ -74,7 +73,7 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
           contratante: trip.contratante ?? '',
           valor: String(trip.valor),
           data: new Date(trip.data),
-          temVolta: !!trip.dataVolta,
+          temVolta: trip.temVolta ?? !!trip.dataVolta,
           dataVolta: trip.dataVolta ? new Date(trip.dataVolta) : undefined,
         });
       } else {
@@ -92,11 +91,17 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
 
 
   const onSubmit = (data: TripFormValues) => {
-     const dataToSave = {
-        ...data,
-        data: data.data.toISOString(),
-        dataVolta: data.temVolta && data.dataVolta ? data.dataVolta.toISOString() : null
+    const dataToSave: any = {
+      ...data,
+      data: data.data.toISOString(),
     };
+
+    if (data.temVolta && data.dataVolta) {
+      dataToSave.dataVolta = data.dataVolta.toISOString();
+    } else {
+      dataToSave.temVolta = false;
+      dataToSave.dataVolta = null;
+    }
 
     if (trip) {
       onSave({ ...trip, ...dataToSave });

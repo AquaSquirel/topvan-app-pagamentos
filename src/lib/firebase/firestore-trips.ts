@@ -37,6 +37,7 @@ export const addReturnTrip = async (idaDestino: string, dataVolta: string): Prom
         valor: 0,
         statusPagamento: 'Pendente' as const,
         isReturnTrip: true,
+        temVolta: false,
     };
     const docRef = await addDoc(tripsCollection, returnTrip);
     return docRef.id;
@@ -46,12 +47,13 @@ export const updateTrip = async (trip: Trip): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, trip.id);
     const { id, ...tripData } = trip;
     
-    // Explicitly remove dataVolta if it's null or undefined to prevent Firestore error
-    if (tripData.dataVolta === null || tripData.dataVolta === undefined) {
-        delete tripData.dataVolta;
+    // Explicitly handle temVolta and dataVolta fields
+    const dataToUpdate: Partial<Omit<Trip, 'id'>> = { ...tripData };
+    if (!dataToUpdate.temVolta) {
+        delete dataToUpdate.dataVolta;
     }
 
-    await updateDoc(tripDoc, tripData);
+    await updateDoc(tripDoc, dataToUpdate);
 };
 
 export const deleteTrip = async (tripId: string): Promise<void> => {
