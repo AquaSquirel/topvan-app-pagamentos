@@ -45,7 +45,15 @@ export default function ViagensPage() {
        try {
             if (tripData.id) {
                 // Update logic
+                const originalTrip = trips.find(t => t.id === tripData.id);
+                
                 await updateTrip(tripData);
+
+                // Check if a return trip was just added during an edit
+                if (tripData.temVolta && tripData.dataVolta && !originalTrip?.temVolta) {
+                     await addReturnTrip(tripData.destino, tripData.dataVolta);
+                }
+
                 toast({ title: "Sucesso!", description: "Viagem atualizada." });
             } else {
                 // Add logic
