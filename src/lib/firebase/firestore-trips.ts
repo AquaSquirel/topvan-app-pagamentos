@@ -37,12 +37,13 @@ export const addTrip = async (trip: Omit<Trip, 'id' | 'statusPagamento'>): Promi
     return docRef.id;
 };
 
-export const addReturnTrip = async (idaTripId: string, idaDestino: string, dataVolta: string): Promise<string> => {
+export const addReturnTrip = async (idaTripId: string, idaDestino: string, dataVolta: string, contratante?: string): Promise<string> => {
     const tripsCollection = collection(db, TRIPS_COLLECTION);
     const returnTrip: Omit<Trip, 'id'> = {
         destino: `Volta de ${idaDestino}`,
         data: dataVolta,
         valor: 0,
+        contratante: contratante,
         statusPagamento: 'Pendente' as const,
         isReturnTrip: true,
         temVolta: false,
@@ -85,28 +86,34 @@ export const updateTrip = async (tripUpdateData: Partial<Trip> & { id: string })
 export const deleteTrip = async (tripId: string): Promise<void> => {
     const tripDocRef = doc(db, TRIPS_COLLECTION, tripId);
     const tripSnapshot = await getDoc(tripDocRef);
+    if (!tripSnapshot.exists()) return;
+
     const tripData = tripSnapshot.data() as Trip;
 
+    const batch = writeBatch(db);
+
     // Scenario 1: Deleting an outbound trip (ida) that HAS a return trip
-    if (tripData && tripData.idaTripId === tripId && tripData.temVolta) {
+    if (tripData && tripData.temVolta) {
         const returnTrip = await getReturnTrip(tripId);
         if (returnTrip) {
             const returnTripDocRef = doc(db, TRIPS_COLLECTION, returnTrip.id);
-            await deleteDoc(returnTripDocRef);
+            batch.delete(returnTripDocRef);
         }
     }
     // Scenario 2: Deleting a return trip (volta)
     else if (tripData && tripData.isReturnTrip && tripData.idaTripId) {
         const idaTripDocRef = doc(db, TRIPS_COLLECTION, tripData.idaTripId);
         // Update the outbound trip to remove the return link
-        await updateDoc(idaTripDocRef, {
+        batch.update(idaTripDocRef, {
             temVolta: false,
             dataVolta: deleteField()
         });
     }
 
     // Finally, delete the trip itself
-    await deleteDoc(tripDocRef);
+    batch.delete(tripDocRef);
+    
+    await batch.commit();
 };
 
 

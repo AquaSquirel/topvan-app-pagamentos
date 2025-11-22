@@ -29,7 +29,19 @@ export default function ViagensPage() {
         try {
             setLoading(true);
             const tripsData = await getTrips();
-            setTrips(tripsData);
+            const tripsWithContractor = await Promise.all(
+              tripsData.map(async (trip) => {
+                if (trip.isReturnTrip && trip.idaTripId && !trip.contratante) {
+                    const idaTripSnapshot = await getDoc(doc(db, 'trips', trip.idaTripId));
+                    if (idaTripSnapshot.exists()) {
+                        const idaTrip = idaTripSnapshot.data() as Trip;
+                        return { ...trip, contratante: idaTrip.contratante };
+                    }
+                }
+                return trip;
+              })
+            );
+            setTrips(tripsWithContractor);
         } catch (error) {
             toast({ title: "Erro", description: "Não foi possível carregar as viagens.", variant: "destructive" });
         } finally {
@@ -54,11 +66,11 @@ export default function ViagensPage() {
 
                 // Scenario 1: Return trip was ADDED during edit
                 if (tripData.temVolta && !originalTrip.temVolta) {
-                    await addReturnTrip(tripData.id, tripData.destino, tripData.dataVolta);
+                    await addReturnTrip(tripData.id, tripData.destino, tripData.dataVolta, tripData.contratante);
                 } 
                 // Scenario 2: Return trip date was CHANGED
-                else if (tripData.temVolta && existingReturnTrip && existingReturnTrip.data !== tripData.dataVolta) {
-                    await updateTrip({ ...existingReturnTrip, data: tripData.dataVolta });
+                else if (tripData.temVolta && existingReturnTrip && (existingReturnTrip.data !== tripData.dataVolta || existingReturnTrip.contratante !== tripData.contratante)) {
+                    await updateTrip({ ...existingReturnTrip, data: tripData.dataVolta, contratante: tripData.contratante, destino: `Volta de ${tripData.destino}` });
                 }
                 // Scenario 3: Return trip was REMOVED during edit
                 else if (!tripData.temVolta && originalTrip.temVolta && existingReturnTrip) {
@@ -74,7 +86,7 @@ export default function ViagensPage() {
                 
                 // If there's a return date, add the return trip
                 if (tripData.temVolta && tripData.dataVolta) {
-                    await addReturnTrip(newTripId, tripData.destino, tripData.dataVolta);
+                    await addReturnTrip(newTripId, tripData.destino, tripData.dataVolta, tripData.contratante);
                 }
 
                 toast({ title: "Sucesso!", description: "Viagem adicionada." });
