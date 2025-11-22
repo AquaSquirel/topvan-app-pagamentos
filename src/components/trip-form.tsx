@@ -98,13 +98,10 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
         dataVolta: data.temVolta && data.dataVolta ? data.dataVolta.toISOString() : undefined
     };
 
-    // We don't need `temVolta` in the final object
-    const { temVolta, ...finalData } = dataToSave;
-
     if (trip) {
-      onSave({ ...trip, ...finalData });
+      onSave({ ...trip, ...dataToSave });
     } else {
-      onSave(finalData);
+      onSave(dataToSave);
     }
     setIsOpen(false);
   };

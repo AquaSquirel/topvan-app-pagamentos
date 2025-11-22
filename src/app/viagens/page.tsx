@@ -44,15 +44,19 @@ export default function ViagensPage() {
     const handleAddOrUpdateTrip = async (tripData: any) => {
        try {
             if (tripData.id) {
-                // Update
-                await updateTrip(tripData);
+                // Update logic
+                const { temVolta, ...updateData } = tripData;
+                await updateTrip(updateData);
                 toast({ title: "Sucesso!", description: "Viagem atualizada." });
             } else {
-                // Add
-                const { dataVolta, ...idaData } = tripData;
+                // Add logic
+                const { dataVolta, temVolta, ...idaData } = tripData;
+                
+                // Add the main trip (ida)
                 await addTrip(idaData);
                 
-                if (dataVolta) {
+                // If there's a return date, add the return trip
+                if (temVolta && dataVolta) {
                     await addReturnTrip(idaData.destino, dataVolta);
                 }
 
@@ -60,6 +64,7 @@ export default function ViagensPage() {
             }
             await fetchTrips();
         } catch (error) {
+            console.error("Error saving trip:", error);
             toast({ title: "Erro", description: "Não foi possível salvar a viagem.", variant: "destructive" });
         }
     };
