@@ -29,6 +29,19 @@ export const addTrip = async (trip: Omit<Trip, 'id' | 'statusPagamento'>): Promi
     return docRef.id;
 };
 
+export const addReturnTrip = async (idaDestino: string, dataVolta: string): Promise<string> => {
+    const tripsCollection = collection(db, TRIPS_COLLECTION);
+    const returnTrip = {
+        destino: `Volta de ${idaDestino}`,
+        data: dataVolta,
+        valor: 0,
+        statusPagamento: 'Pendente' as const,
+        isReturnTrip: true,
+    };
+    const docRef = await addDoc(tripsCollection, returnTrip);
+    return docRef.id;
+}
+
 export const updateTrip = async (trip: Trip): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, trip.id);
     const { id, ...tripData } = trip;

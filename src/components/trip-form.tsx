@@ -1,8 +1,8 @@
 'use client';
 
 import type { Trip } from '@/lib/types';
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { DatePickerResponsive } from '@/components/date-picker-responsive';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const tripSchema = z.object({
   destino: z.string().min(3, { message: 'O destino deve ter pelo menos 3 caracteres.' }),
@@ -20,6 +22,16 @@ const tripSchema = z.object({
     message: "O valor não pode ser negativo."
   }),
   data: z.date({ required_error: 'A data é obrigatória.' }),
+  temVolta: z.boolean().default(false),
+  dataVolta: z.date().optional(),
+}).refine(data => {
+    if (data.temVolta) {
+        return !!data.dataVolta;
+    }
+    return true;
+}, {
+    message: "A data de volta é obrigatória.",
+    path: ["dataVolta"],
 });
 
 type TripFormValues = z.infer<typeof tripSchema>;
@@ -28,7 +40,7 @@ interface AddTripFormProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   trip: Trip | null;
-  onSave: (trip: Omit<Trip, 'id' | 'statusPagamento' | 'data'> & { data: string } | Omit<Trip, 'data'> & {data: string}) => void;
+  onSave: (trip: any) => void;
 }
 
 export const AddTripForm: React.FC<AddTripFormProps> = ({
@@ -44,7 +56,14 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
       contratante: '',
       valor: undefined,
       data: new Date(),
+      temVolta: false,
+      dataVolta: undefined,
     },
+  });
+
+   const temVolta = useWatch({
+    control: form.control,
+    name: "temVolta",
   });
 
    useEffect(() => {
@@ -55,6 +74,8 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
           contratante: trip.contratante ?? '',
           valor: String(trip.valor),
           data: new Date(trip.data),
+          temVolta: !!trip.dataVolta,
+          dataVolta: trip.dataVolta ? new Date(trip.dataVolta) : undefined,
         });
       } else {
         form.reset({
@@ -62,6 +83,8 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
           contratante: '',
           valor: undefined,
           data: new Date(),
+          temVolta: false,
+          dataVolta: undefined,
         });
       }
     }
@@ -69,15 +92,19 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
 
 
   const onSubmit = (data: TripFormValues) => {
-    const dataToSave = {
+     const dataToSave = {
         ...data,
         data: data.data.toISOString(),
+        dataVolta: data.temVolta && data.dataVolta ? data.dataVolta.toISOString() : undefined
     };
 
+    // We don't need `temVolta` in the final object
+    const { temVolta, ...finalData } = dataToSave;
+
     if (trip) {
-      onSave({ ...trip, ...dataToSave });
+      onSave({ ...trip, ...finalData });
     } else {
-      onSave(dataToSave as Omit<Trip, "id" | "statusPagamento">);
+      onSave(finalData);
     }
     setIsOpen(false);
   };
@@ -137,12 +164,42 @@ export const AddTripForm: React.FC<AddTripFormProps> = ({
               name="data"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Data da Viagem</FormLabel>
+                  <FormLabel>Data da Viagem (Ida)</FormLabel>
                     <DatePickerResponsive date={field.value} setDate={field.onChange} />
                   <FormMessage />
                 </FormItem>
               )}
             />
+             <FormField
+                control={form.control}
+                name="temVolta"
+                render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                    <FormLabel>Volta em outro dia?</FormLabel>
+                    </div>
+                    <FormControl>
+                    <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                    />
+                    </FormControl>
+                </FormItem>
+                )}
+            />
+            {temVolta && (
+                 <FormField
+                    control={form.control}
+                    name="dataVolta"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                        <FormLabel>Data da Volta</FormLabel>
+                        <DatePickerResponsive date={field.value} setDate={field.onChange} />
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            )}
             <DialogFooter>
               <Button type="submit">{trip ? 'Salvar Alterações' : 'Adicionar Viagem'}</Button>
             </DialogFooter>

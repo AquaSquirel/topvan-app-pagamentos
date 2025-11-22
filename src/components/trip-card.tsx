@@ -40,11 +40,14 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className="bg-card rounded-lg border overflow-hidden"
+      className={cn(
+        "bg-card rounded-lg border overflow-hidden",
+        trip.isReturnTrip && "border-dashed border-primary/50"
+      )}
     >
       <div className="flex items-stretch">
         <div className="w-2 flex-shrink-0 flex flex-col">
-            <div className={cn("h-1/2", isCompleted || isArchived ? "bg-green-600" : "bg-sky-600")}></div>
+            <div className={cn("h-1/2", isCompleted || isArchived ? "bg-green-600" : "bg-sky-600", trip.isReturnTrip && "bg-amber-600")}></div>
             <div className={cn("h-1/2", getStatusColor())}></div>
         </div>
         <div className="flex-1">
@@ -67,14 +70,15 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                 <Button 
                     onClick={onTogglePayment} 
                     variant={isPaid ? 'destructive' : 'default'} 
-                    disabled={isArchived}
+                    disabled={isArchived || trip.isReturnTrip}
                     className={cn(
                         "flex-1 w-full justify-center text-left px-4 py-2 font-bold h-auto text-sm",
                         isPaid ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700',
-                        isArchived && 'bg-gray-500 hover:bg-gray-500 cursor-not-allowed'
+                        (isArchived || trip.isReturnTrip) && 'bg-gray-500 hover:bg-gray-500 cursor-not-allowed'
                     )}
                 >
                     {isArchived ? <><Archive className="mr-2 h-4 w-4" /> <span>Arquivada</span></> : 
+                     trip.isReturnTrip ? <span>Viagem de Volta</span> :
                      isPaid ? <><X className="mr-2 h-4 w-4" /> <span>Marcar Pendente</span></> : 
                      <><Check className="mr-2 h-4 w-4" /> <span>Marcar Paga</span></>
                     }
@@ -94,13 +98,13 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                       </Tooltip>
                     </TooltipProvider>
 
-                    <Button onClick={onEdit} variant="outline" size="icon" className="flex-1 sm:flex-auto" disabled={isArchived}>
+                    <Button onClick={onEdit} variant="outline" size="icon" className="flex-1 sm:flex-auto" disabled={isArchived || trip.isReturnTrip}>
                         <Edit className="h-5 w-5" />
                         <span className="sr-only">Editar</span>
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="icon" className="flex-1 sm:flex-auto">
+                        <Button variant="outline" size="icon" className="flex-1 sm:flex-auto" disabled={trip.isReturnTrip}>
                             <Trash2 className="h-5 w-5 text-destructive" />
                             <span className="sr-only">Excluir</span>
                         </Button>

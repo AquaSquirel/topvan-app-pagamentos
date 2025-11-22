@@ -20,6 +20,8 @@ export interface Trip {
   data: string; // ISO date string
   valor: number;
   statusPagamento: 'Pago' | 'Pendente' | 'Arquivado';
+  dataVolta?: string; // ISO date string for return trip
+  isReturnTrip?: boolean;
 }
 
 export interface FuelExpense {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Trip } from '@/lib/types';
-import { getTrips, addTrip, deleteTrip, updateTrip } from '@/lib/firebase/firestore-trips';
+import { getTrips, addTrip, deleteTrip, updateTrip, addReturnTrip } from '@/lib/firebase/firestore-trips';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -41,15 +41,21 @@ export default function ViagensPage() {
         fetchTrips();
     }, [fetchTrips]);
 
-    const handleAddOrUpdateTrip = async (tripData: Omit<Trip, 'id' | 'statusPagamento'> | Trip) => {
+    const handleAddOrUpdateTrip = async (tripData: any) => {
        try {
-            if ('id' in tripData) {
+            if (tripData.id) {
                 // Update
                 await updateTrip(tripData);
                 toast({ title: "Sucesso!", description: "Viagem atualizada." });
             } else {
                 // Add
-                await addTrip(tripData);
+                const { dataVolta, ...idaData } = tripData;
+                await addTrip(idaData);
+                
+                if (dataVolta) {
+                    await addReturnTrip(idaData.destino, dataVolta);
+                }
+
                 toast({ title: "Sucesso!", description: "Viagem adicionada." });
             }
             await fetchTrips();
