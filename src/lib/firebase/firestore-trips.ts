@@ -12,7 +12,8 @@ import {
     query,
     writeBatch,
     where,
-    deleteField
+    deleteField,
+    limit
 } from 'firebase/firestore';
 
 const TRIPS_COLLECTION = 'trips';
@@ -31,41 +32,55 @@ export const addTrip = async (trip: Omit<Trip, 'id' | 'statusPagamento'>): Promi
     return docRef.id;
 };
 
-export const addReturnTrip = async (idaDestino: string, dataVolta: string): Promise<string> => {
+export const addReturnTrip = async (idaTripId: string, idaDestino: string, dataVolta: string): Promise<string> => {
     const tripsCollection = collection(db, TRIPS_COLLECTION);
-    const returnTrip = {
+    const returnTrip: Omit<Trip, 'id'> = {
         destino: `Volta de ${idaDestino}`,
         data: dataVolta,
         valor: 0,
         statusPagamento: 'Pendente' as const,
         isReturnTrip: true,
         temVolta: false,
+        idaTripId: idaTripId
     };
     const docRef = await addDoc(tripsCollection, returnTrip);
     return docRef.id;
 }
 
-export const updateTrip = async (trip: Trip): Promise<void> => {
+export const getReturnTrip = async (idaTripId: string): Promise<Trip | null> => {
+    const q = query(
+        collection(db, TRIPS_COLLECTION),
+        where('idaTripId', '==', idaTripId),
+        limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        return null;
+    }
+    const doc = querySnapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Trip;
+};
+
+export const updateTrip = async (trip: Partial<Trip> & { id: string }): Promise<void> => {
     const tripDoc = doc(db, TRIPS_COLLECTION, trip.id);
     const { id, ...tripData } = trip;
-    
-    const dataToUpdate: { [key: string]: any } = { ...tripData };
-
-    if (dataToUpdate.temVolta === false) {
-        dataToUpdate.dataVolta = deleteField();
-    }
-
-    await updateDoc(tripDoc, dataToUpdate);
+    await updateDoc(tripDoc, tripData);
 };
 
 export const deleteTrip = async (tripId: string): Promise<void> => {
+    // Also delete associated return trip if it exists
+    const returnTrip = await getReturnTrip(tripId);
+    if(returnTrip) {
+        const returnTripDoc = doc(db, TRIPS_COLLECTION, returnTrip.id);
+        await deleteDoc(returnTripDoc);
+    }
     const tripDoc = doc(db, TRIPS_COLLECTION, tripId);
     await deleteDoc(tripDoc);
 };
 
 export const archivePaidTrips = async (): Promise<void> => {
     const batch = writeBatch(db);
-    const tripsCollection = collection(db, TRIPS_COLlection);
+    const tripsCollection = collection(db, TRIPS_COLLECTION);
     const q = query(tripsCollection, where('statusPagamento', '==', 'Pago'));
     const querySnapshot = await getDocs(q);
 

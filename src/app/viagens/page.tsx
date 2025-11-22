@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Trip } from '@/lib/types';
-import { getTrips, addTrip, deleteTrip, updateTrip, addReturnTrip } from '@/lib/firebase/firestore-trips';
+import { getTrips, addTrip, deleteTrip, updateTrip, addReturnTrip, getReturnTrip } from '@/lib/firebase/firestore-trips';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -43,28 +43,39 @@ export default function ViagensPage() {
 
     const handleAddOrUpdateTrip = async (tripData: any) => {
        try {
+            // UPDATE LOGIC
             if (tripData.id) {
-                // Update logic
                 const originalTrip = trips.find(t => t.id === tripData.id);
-                
-                await updateTrip(tripData);
+                if (!originalTrip) throw new Error("Viagem original não encontrada");
 
-                // Check if a return trip was just added during an edit
-                if (tripData.temVolta && tripData.dataVolta && !originalTrip?.temVolta) {
-                     await addReturnTrip(tripData.destino, tripData.dataVolta);
+                // Update the main trip
+                await updateTrip(tripData);
+                
+                const existingReturnTrip = await getReturnTrip(tripData.id);
+
+                // Scenario 1: Return trip was added
+                if (tripData.temVolta && !existingReturnTrip) {
+                    await addReturnTrip(tripData.id, tripData.destino, tripData.dataVolta);
+                } 
+                // Scenario 2: Return trip date was changed
+                else if (tripData.temVolta && existingReturnTrip && existingReturnTrip.data !== tripData.dataVolta) {
+                    await updateTrip({ id: existingReturnTrip.id, data: tripData.dataVolta });
+                }
+                // Scenario 3: Return trip was removed
+                else if (!tripData.temVolta && existingReturnTrip) {
+                    await deleteTrip(existingReturnTrip.id);
                 }
 
                 toast({ title: "Sucesso!", description: "Viagem atualizada." });
-            } else {
-                // Add logic
-                const { dataVolta, temVolta, ...idaData } = tripData;
-                
+            } 
+            // ADD LOGIC
+            else {
                 // Add the main trip (ida)
-                await addTrip(idaData);
+                const newTripId = await addTrip({ ...tripData, statusPagamento: 'Pendente' });
                 
                 // If there's a return date, add the return trip
-                if (temVolta && dataVolta) {
-                    await addReturnTrip(idaData.destino, dataVolta);
+                if (tripData.temVolta && tripData.dataVolta) {
+                    await addReturnTrip(newTripId, tripData.destino, tripData.dataVolta);
                 }
 
                 toast({ title: "Sucesso!", description: "Viagem adicionada." });
@@ -92,7 +103,7 @@ export default function ViagensPage() {
 
         const newStatus = trip.statusPagamento === 'Pago' ? 'Pendente' : 'Pago';
         try {
-            await updateTrip({ ...trip, statusPagamento: newStatus });
+            await updateTrip({ id: trip.id, statusPagamento: newStatus });
             await fetchTrips();
         } catch (e) {
             toast({ title: "Erro", description: "Não foi possível alterar o status de pagamento.", variant: "destructive" });
@@ -105,7 +116,7 @@ export default function ViagensPage() {
 
         const newStatus = trip.statusPagamento === 'Arquivado' ? 'Pendente' : 'Arquivado';
         try {
-            await updateTrip({ ...trip, statusPagamento: newStatus });
+            await updateTrip({ id: trip.id, statusPagamento: newStatus });
             await fetchTrips();
             toast({ title: "Sucesso!", description: `Viagem ${newStatus === 'Arquivado' ? 'arquivada' : 'desarquivada'}.` });
         } catch (e) {

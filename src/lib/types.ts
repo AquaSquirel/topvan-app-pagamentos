@@ -23,6 +23,7 @@ export interface Trip {
   temVolta?: boolean;
   dataVolta?: string; // ISO date string for return trip
   isReturnTrip?: boolean;
+  idaTripId?: string; // ID of the outbound trip if this is a return trip
 }
 
 export interface FuelExpense {
