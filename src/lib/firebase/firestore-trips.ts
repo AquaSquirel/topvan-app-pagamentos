@@ -87,8 +87,8 @@ export const deleteTrip = async (tripId: string): Promise<void> => {
     const tripSnapshot = await getDoc(tripDocRef);
     const tripData = tripSnapshot.data() as Trip;
 
-    // Scenario 1: Deleting an outbound trip (ida)
-    if (tripData.temVolta) {
+    // Scenario 1: Deleting an outbound trip (ida) that HAS a return trip
+    if (tripData && tripData.idaTripId === tripId && tripData.temVolta) {
         const returnTrip = await getReturnTrip(tripId);
         if (returnTrip) {
             const returnTripDocRef = doc(db, TRIPS_COLLECTION, returnTrip.id);
@@ -96,7 +96,7 @@ export const deleteTrip = async (tripId: string): Promise<void> => {
         }
     }
     // Scenario 2: Deleting a return trip (volta)
-    else if (tripData.isReturnTrip && tripData.idaTripId) {
+    else if (tripData && tripData.isReturnTrip && tripData.idaTripId) {
         const idaTripDocRef = doc(db, TRIPS_COLLECTION, tripData.idaTripId);
         // Update the outbound trip to remove the return link
         await updateDoc(idaTripDocRef, {

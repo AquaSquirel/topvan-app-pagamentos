@@ -113,7 +113,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                         <AlertDialogHeader>
                             <AlertDialogTitle>Excluir Viagem?</AlertDialogTitle>
                             <AlertDialogDescription>
-                            Você tem certeza que deseja excluir a viagem para {trip.destino}? {trip.temVolta ? 'A viagem de volta também será excluída.' : ''} Esta ação não pode ser desfeita.
+                            Você tem certeza que deseja excluir a viagem para {trip.destino}? {trip.temVolta || trip.isReturnTrip ? 'A viagem de ida/volta correspondente também será afetada.' : ''} Esta ação não pode ser desfeita.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

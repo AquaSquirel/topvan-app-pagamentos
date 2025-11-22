@@ -43,26 +43,25 @@ export default function ViagensPage() {
 
     const handleAddOrUpdateTrip = async (tripData: any) => {
        try {
+            const originalTrip = tripData.id ? trips.find(t => t.id === tripData.id) : null;
+            
             // UPDATE LOGIC
-            if (tripData.id) {
-                const originalTrip = trips.find(t => t.id === tripData.id);
-                if (!originalTrip) throw new Error("Viagem original não encontrada");
-
+            if (originalTrip) {
                 // Update the main trip
                 await updateTrip(tripData);
                 
                 const existingReturnTrip = await getReturnTrip(tripData.id);
 
-                // Scenario 1: Return trip was added
-                if (tripData.temVolta && !existingReturnTrip) {
+                // Scenario 1: Return trip was ADDED during edit
+                if (tripData.temVolta && !originalTrip.temVolta) {
                     await addReturnTrip(tripData.id, tripData.destino, tripData.dataVolta);
                 } 
-                // Scenario 2: Return trip date was changed
+                // Scenario 2: Return trip date was CHANGED
                 else if (tripData.temVolta && existingReturnTrip && existingReturnTrip.data !== tripData.dataVolta) {
-                    await updateTrip({ id: existingReturnTrip.id, data: tripData.dataVolta });
+                    await updateTrip({ ...existingReturnTrip, data: tripData.dataVolta });
                 }
-                // Scenario 3: Return trip was removed
-                else if (!tripData.temVolta && existingReturnTrip) {
+                // Scenario 3: Return trip was REMOVED during edit
+                else if (!tripData.temVolta && originalTrip.temVolta && existingReturnTrip) {
                     await deleteTrip(existingReturnTrip.id);
                 }
 
@@ -125,18 +124,38 @@ export default function ViagensPage() {
         }
     };
 
-    const { upcomingTrips, completedTrips, totalRevenue, totalPending } = useMemo(() => {
+    const { upcomingTrips, completedTrips, totalRevenue, totalPending, pendingThisMonth } = useMemo(() => {
         const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
         now.setHours(0, 0, 0, 0); 
+        
         const sortedTrips = [...trips].sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
         
         const upcoming = sortedTrips.filter(t => new Date(t.data) >= now && t.statusPagamento !== 'Arquivado');
         const completed = sortedTrips.filter(t => new Date(t.data) < now || t.statusPagamento === 'Arquivado');
         
-        const revenue = trips.filter(t => t.statusPagamento === 'Pago').reduce((acc, trip) => acc + trip.valor, 0);
-        const pending = trips.filter(t => t.statusPagamento === 'Pendente').reduce((acc, trip) => acc + trip.valor, 0);
+        const revenue = trips
+            .filter(t => t.statusPagamento === 'Pago')
+            .reduce((acc, trip) => acc + trip.valor, 0);
+            
+        const pendingTrips = trips.filter(t => t.statusPagamento === 'Pendente');
 
-        return { upcomingTrips: upcoming, completedTrips: completed.reverse(), totalRevenue: revenue, totalPending: pending };
+        const pending = pendingTrips.reduce((acc, trip) => acc + trip.valor, 0);
+        
+        const pendingMonth = pendingTrips.filter(t => {
+            const tripDate = new Date(t.data);
+            return tripDate.getMonth() === currentMonth && tripDate.getFullYear() === currentYear;
+        }).reduce((acc, trip) => acc + trip.valor, 0);
+
+
+        return { 
+            upcomingTrips: upcoming, 
+            completedTrips: completed.reverse(), 
+            totalRevenue: revenue, 
+            totalPending: pending,
+            pendingThisMonth: pendingMonth
+        };
     }, [trips]);
 
     return (
@@ -146,10 +165,10 @@ export default function ViagensPage() {
                 <Button onClick={() => openTripForm()}><Plus className="mr-2 h-4 w-4" /> Adicionar Viagem</Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                  <Card>
                     <CardHeader>
-                        <CardTitle>Receita com Viagens (Pagas)</CardTitle>
+                        <CardTitle>Receita com Viagens</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {loading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold text-green-500">{formatCurrency(totalRevenue)}</p>}
@@ -157,7 +176,15 @@ export default function ViagensPage() {
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Total Pendente</CardTitle>
+                        <CardTitle>Pendente (Mês)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {loading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold text-yellow-500">{formatCurrency(pendingThisMonth)}</p>}
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pendente (Total)</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {loading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold text-red-500">{formatCurrency(totalPending)}</p>}
