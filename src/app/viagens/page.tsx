@@ -11,6 +11,8 @@ import { cn, formatCurrency } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddTripForm } from '@/components/trip-form';
 import TripCard from '@/components/trip-card';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 export default function ViagensPage() {
     const [trips, setTrips] = useState<Trip[]>([]);
@@ -43,6 +45,7 @@ export default function ViagensPage() {
             );
             setTrips(tripsWithContractor);
         } catch (error) {
+            console.error("Error fetching trips: ", error);
             toast({ title: "Erro", description: "Não foi possível carregar as viagens.", variant: "destructive" });
         } finally {
             setLoading(false);
@@ -69,7 +72,7 @@ export default function ViagensPage() {
                     await addReturnTrip(tripData.id, tripData.destino, tripData.dataVolta, tripData.contratante);
                 } 
                 // Scenario 2: Return trip date was CHANGED
-                else if (tripData.temVolta && existingReturnTrip && (existingReturnTrip.data !== tripData.dataVolta || existingReturnTrip.contratante !== tripData.contratante)) {
+                else if (tripData.temVolta && existingReturnTrip && (new Date(existingReturnTrip.data).getTime() !== new Date(tripData.dataVolta).getTime() || existingReturnTrip.contratante !== tripData.contratante)) {
                     await updateTrip({ ...existingReturnTrip, data: tripData.dataVolta, contratante: tripData.contratante, destino: `Volta de ${tripData.destino}` });
                 }
                 // Scenario 3: Return trip was REMOVED during edit
