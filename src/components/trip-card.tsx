@@ -104,7 +104,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="icon" className="flex-1 sm:flex-auto" disabled={trip.isReturnTrip}>
+                        <Button variant="outline" size="icon" className="flex-1 sm:flex-auto">
                             <Trash2 className="h-5 w-5 text-destructive" />
                             <span className="sr-only">Excluir</span>
                         </Button>
@@ -113,7 +113,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onEdit, onDelete, onTogglePay
                         <AlertDialogHeader>
                             <AlertDialogTitle>Excluir Viagem?</AlertDialogTitle>
                             <AlertDialogDescription>
-                            Você tem certeza que deseja excluir a viagem para {trip.destino}? Esta ação não pode ser desfeita.
+                            Você tem certeza que deseja excluir a viagem para {trip.destino}? {trip.temVolta ? 'A viagem de volta também será excluída.' : ''} Esta ação não pode ser desfeita.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

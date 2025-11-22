@@ -93,6 +93,7 @@ export default function ViagensPage() {
             await fetchTrips();
             toast({ title: "Sucesso!", description: "Viagem excluída." });
         } catch (error) {
+            console.error(error);
             toast({ title: "Erro", description: "Não foi possível excluir a viagem.", variant: "destructive" });
         }
     };
