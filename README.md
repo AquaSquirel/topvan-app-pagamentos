@@ -110,16 +110,3 @@ src/
 ## 📱 PWA (Progressive Web App)
 
 Este projeto está configurado como PWA, permitindo que seja instalado em dispositivos móveis (Android e iOS) e Desktop, oferecendo uma experiência nativa.
-
-## 🤝 Contribuição
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
-
-1.  Faça um Fork do projeto.
-2.  Crie uma Branch para sua Feature (`git checkout -b feature/MinhaFeature`).
-3.  Faça o Commit (`git commit -m 'Adicionando nova feature'`).
-4.  Faça o Push (`git push origin feature/MinhaFeature`).
-5.  Abra um Pull Request.
-
----
-Desenvolvido com ❤️ para facilitar a vida dos transportadores escolares.
