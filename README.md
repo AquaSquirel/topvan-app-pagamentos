@@ -2,8 +2,6 @@
 
 Sistema moderno de gestão para transporte escolar (Van), desenvolvido para facilitar o controle financeiro, gestão de alunos e manutenção do veículo.
 
-![TopVan Manager Banner](public/icons/icon-512x512.png) <!-- Placeholder para logo se houver -->
-
 ## 🚀 Sobre o Projeto
 
 O **TopVan Manager** é uma aplicação Web Progressive (PWA) construída para auxiliar motoristas e gestores de transporte escolar. O sistema permite o controle de mensalidades, gastos com combustível, manutenção e organização das rotas/viagens.
